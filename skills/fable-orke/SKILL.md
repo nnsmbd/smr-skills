@@ -1,6 +1,6 @@
 ---
 name: fable-orke
-description: Manual orchestration mode for long-horizon Claude Code work: Fable 5 plans and coordinates, Sonnet 5 implements, Opus 4.8 handles complex reasoning/review, with GitHub Issues used only when they reduce ambiguity.
+description: "Manual orchestration mode for long-horizon Claude Code work: Fable 5 plans and coordinates, Sonnet 5 implements, Opus 4.8 handles complex reasoning/review, with GitHub Issues used only when they reduce ambiguity."
 disable-model-invocation: true
 ---
 
