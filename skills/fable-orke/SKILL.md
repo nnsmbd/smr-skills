@@ -1,6 +1,6 @@
 ---
 name: fable-orke
-description: "Manual orchestration mode for long-horizon Claude Code work: Fable 5 plans and coordinates, Sonnet 5 implements, Opus 4.8 handles complex reasoning/review, with GitHub Issues used only when they reduce ambiguity."
+description: "Manual orchestration mode for long-horizon Claude Code work: Fable 5 plans and coordinates, Codex GPT-5.5 handles coding/code review by default, Sonnet 5 scouts/verifies/handles GitHub ops and tiny fallbacks, Opus 4.8 handles expert reasoning/risk review."
 disable-model-invocation: true
 ---
 
@@ -11,6 +11,8 @@ disable-model-invocation: true
 Use this skill when Fable 5 should act as the expensive orchestrator, product/architecture thinker, and final decision maker instead of spending most of the session on broad codebase reading or routine implementation.
 
 Fable keeps the goal, resolves forks, writes specifications, creates GitHub Issues when useful, assigns work, synthesizes subagent reports, makes final calls, verifies outcomes, and answers the user.
+
+Fable should not spend expensive context on mechanical reading or coding. Codex GPT-5.5 is the default hand for non-trivial implementation and code review when available. Sonnet 5 is the scout, reader, grep/search hand, GitHub/gh hand, verifier, and tiny fallback implementer. Opus 4.8 provides expert judgment for hard forks, deep debug, architecture, and risk.
 
 Fable does not perform broad repo exploration by default. Scouts and implementers do that. However, Fable may inspect a small number of key files when needed to verify a critical decision, resolve conflicting subagent reports, check a risky API boundary, ground a source claim, or finalize a spec.
 
@@ -26,9 +28,10 @@ Use for small tasks when:
 - there is no architecture fork;
 - no GitHub Issue is needed;
 - the result can be checked with one command or a quick inspection;
-- the task is a text tweak, import fix, small UI change, env example, formatting adjustment, or similarly narrow edit.
+- the task is a text tweak, import fix, small UI change, env example, formatting adjustment, or similarly narrow edit;
+- Codex overhead is not justified or the user explicitly wants a quick local change.
 
-Fable may give a short plan and either perform the change directly or delegate one narrow task. Keep reporting factual and brief.
+Fable may give a short plan and either perform the change directly or delegate one narrow Sonnet task. If Codex is skipped for a tiny fallback edit, say so plainly in the final answer.
 
 ### Mode B - Issue-first
 
@@ -40,7 +43,7 @@ Use for medium tasks when:
 - the Definition of Done is testable;
 - an implementer and a separate verifier are useful.
 
-Fable should create a self-contained GitHub Issue before implementation unless the user explicitly asks to avoid GitHub. The implementer should be able to execute from the issue without repeating broad discovery.
+Fable should create a self-contained GitHub Issue before implementation unless the user explicitly asks to avoid GitHub. Sonnet scouts and performs GitHub/gh operations. Codex is the default implementer for medium code tasks and should be able to execute from the issue without repeating broad discovery. If Codex is unavailable, stop and ask for setup or explicit permission to use a Sonnet fallback.
 
 ### Mode C - Pipeline
 
@@ -51,7 +54,7 @@ Use for large tasks when:
 - backend and frontend are both involved;
 - migrations, integrations, auth, payments, user data, deploys, or production risk are involved.
 
-Fable must use a pipeline: scout subagents, multiple issues when needed, implementers, a verifier with clean context, Opus 4.8 review for complex decisions or risk, and final synthesis.
+Fable must use a pipeline: Sonnet scouts, multiple issues when needed, Codex implementers/code reviewers by default, Sonnet verifiers with clean context, Opus 4.8 review for architecture/security/auth/payments/data/deploy/production risk, and final synthesis. If Codex is unavailable, do not silently fall back for large or risky implementation.
 
 ## GitHub Issues
 
@@ -93,7 +96,7 @@ An issue is ready for execution only when it contains:
 - verification commands;
 - rollback note when the task is risky;
 - dependencies/blockers;
-- model/tool recommendation: Sonnet 5 by default, Opus 4.8 when expert reasoning is required, or optional Codex/Orca only when available and appropriate.
+- model/tool recommendation: Codex GPT-5.5 for non-trivial coding/review when available; Sonnet 5 for scouting, gh ops, verification, and tiny fallback; Opus 4.8 for expert reasoning/risk review; external workers only when available and appropriate.
 
 If any required field is unknown, dispatch a scout with a narrow read-only question, inspect the minimum key files directly, or state the blocker explicitly.
 
@@ -112,26 +115,43 @@ For source-backed deliverables, acceptance criteria should require checking impo
 
 ## Model Routing
 
-Model routing is conceptual unless the local Claude Code config already defines exact aliases. Do not invent unconfirmed `model:` syntax or aliases.
+Routing is conceptual unless local Claude Code / Codex config confirms exact aliases or tool names. Do not invent unconfirmed `model:` syntax, plugin names, CLI flags, or aliases.
 
 - Orchestrator: Fable 5. Use for planning, prioritization, decomposition, issue writing, conflict resolution, final decisions, and final synthesis.
-- Default implementer: Sonnet 5. Use for normal coding, editing, tests, docs, UI changes, and repository exploration.
-- Expert reviewer/debugger: Opus 4.8. Use for architecture review, complex debugging, risky refactors, multi-system reasoning, final risk review, and cases where Sonnet reports uncertainty.
+- Default coding hand: Codex GPT-5.5. Use for non-trivial implementation, bug fixes, refactors, test creation/repair, multi-file code changes, and code review when available.
+- Default scout/verifier/gh hand: Sonnet 5. Use for repo reading, grep/search, GitHub operations, issue updates, verification, test runs, and factual reports.
+- Tiny fallback implementer: Sonnet 5 or Fable direct edit only for Mode A tasks where Codex overhead is not justified.
+- Expert reviewer/debugger: Opus 4.8. Use for architecture review, complex debugging, risky refactors, multi-system reasoning, final risk review, and cases where Sonnet/Codex reports uncertainty.
 - Cheap scanner: Haiku. Use only for simple read-only discovery when speed/cost matters and the task is low-risk.
 
 Do not make Opus 4.8 the default for all subagents. It is the expensive specialist, not the routine workforce.
+Do not make Sonnet 5 the default coding hand when Codex is ready.
 
-## Optional Codex / Orca Integration
+## Codex-first Coding / Optional External Workers
 
-Codex GPT-5.5 may be used as an optional coding or review hand when a Codex plugin/tool is actually available. Codex is not a required dependency of this skill. If Codex is unavailable, fall back to ordinary Claude Code subagents.
+Codex GPT-5.5 is the default coding and code-review hand when available. Use Codex for implementation tasks, non-trivial code edits, bug fixes, refactors, test creation or repair, multi-file changes, and code review.
+
+Sonnet should not be the default coding hand when Codex is ready. Sonnet is primarily for scouting, reading files, grep/search, GitHub operations, verification, test execution, and Mode A tiny fallback edits.
 
 When using Codex:
 
 - give it a self-contained spec or GitHub Issue;
+- include exact scope, non-goals, files/directories, what not to touch, acceptance criteria, verification commands, and expected report format;
 - pass absolute repo/worktree paths when paths matter;
-- require changed files, diff summary, commands run, test output, unresolved risks, and what was not checked;
-- do not treat Codex as the verifier by default;
+- require outcome, changed files, diff summary, commands run, command outputs, test results, acceptance criteria status, unresolved risks, what was not checked, and noticed-not-touched items;
+- do not treat Codex implementation as acceptance;
 - do not hard-code unconfirmed plugin names, CLI flags, or model aliases beyond what the local config confirms.
+
+After Codex finishes, run a Sonnet verifier or explicit Fable acceptance check. For risky tasks, Opus 4.8 must review architecture/risk before merge or deploy.
+
+Before the first Codex dispatch in a Mode B/C coding pipeline, verify that the local Codex integration is available and authenticated using the repo's actual available tooling or documented local config. Do not hard-code infrastructure-specific paths, plugin cache paths, terminal names, or commands unless they already exist in this repository or current environment. If no known setup/check exists, state that a local Codex setup/check is needed and stop with a clear message.
+
+Codex unavailable policy:
+
+- Mode A tiny tasks: Sonnet/Fable fallback is allowed when low-risk and clearly reported.
+- Mode B medium code tasks: stop and ask for Codex setup or explicit permission to fallback to Sonnet.
+- Mode C large/risky code tasks: do not silently fallback; stop and report that Codex setup or explicit user decision is required.
+- Non-code tasks: continue with Sonnet/Fable as appropriate.
 
 Orca or other external workers may be used only when they are actually available and useful.
 
@@ -157,7 +177,7 @@ Call Opus 4.8 when:
 - security, authorization, payments, user data, deployment, or production risk is involved;
 - the change crosses multiple systems;
 - a risk review is needed before merge or deploy;
-- Sonnet 5 produced a working solution but reliability is uncertain;
+- Codex or Sonnet produced a working solution but reliability is uncertain;
 - the solution may be too direct and likely to create bad architecture.
 
 Do not call Opus 4.8 for:
@@ -182,7 +202,7 @@ Every subagent or worker prompt must include:
 - verification command if one exists;
 - scope limits.
 
-Every implementer report must include:
+Codex implementer reports must include:
 
 - outcome;
 - files changed;
@@ -194,7 +214,16 @@ Every implementer report must include:
 - what was not checked;
 - noticed, not touched items.
 
-Every verifier report must include:
+Sonnet scout reports must include:
+
+- narrow question answered;
+- files/areas inspected;
+- facts with file/line references or command output;
+- unknowns;
+- risks or traps found;
+- no product/architecture decision unless explicitly requested.
+
+Sonnet verifier reports must include:
 
 - verdict: pass / fail / blocked / unverifiable;
 - evidence;
@@ -203,6 +232,15 @@ Every verifier report must include:
 - relevant command output, browser result, test output, or manual inspection evidence;
 - risks;
 - recommendation.
+
+Opus 4.8 reviewer reports must include:
+
+- expert verdict;
+- blocking risks;
+- non-blocking concerns;
+- architecture/debug/risk reasoning;
+- evidence with files/lines or outputs;
+- recommendation for Fable.
 
 Fable must not blindly trust summaries. If reports conflict, Fable must do one of:
 
@@ -233,6 +271,10 @@ Adjacent problems outside scope are "noticed, not touched". Do not fix them auto
 No fake status.
 
 - Do not say "implemented" without a diff.
+- Do not say "Codex implemented" unless Codex returned changed files or a diff summary.
+- Do not say "Codex reviewed" unless review output exists.
+- Do not say "accepted" just because Codex completed.
+- Do not say "verified" until a Sonnet verifier, Fable acceptance check, or relevant command output confirms it.
 - Do not say "tested" without command output, browser result, test output, or manual inspection evidence.
 - Do not say "merged" without git confirmation.
 - Do not say "closed" without GitHub CLI/API confirmation.
@@ -241,7 +283,7 @@ No fake status.
 
 Before any progress update, compare the claim against actual tool outputs from this session. If something was not checked, say so plainly.
 
-`worker_done`, "implementation completed", or a worker success message means only that the worker finished its part. It does not mean acceptance passed, the issue can close, merge is safe, deploy is safe, or acceptance criteria were checked. After worker completion, run a verifier or explicit Fable acceptance check.
+`worker_done`, "implementation completed", a Codex success message, or any worker success message means only that the worker finished its part. It does not mean acceptance passed, the issue can close, merge is safe, deploy is safe, or acceptance criteria were checked. After worker completion, run a verifier or explicit Fable acceptance check.
 
 ## Verification
 
@@ -260,6 +302,8 @@ Good verification:
 - can reveal failure;
 - has command output, test output, browser result, or concrete manual inspection evidence;
 - states what full verification could not cover.
+
+Codex output must be verified independently. For Mode B/C, Codex implements, Sonnet verifies with clean context, Fable accepts, and Opus 4.8 reviews only when expert/risk conditions apply.
 
 After changes:
 
@@ -290,7 +334,9 @@ Do not consider the task complete until the report is received and checked again
 
 Use feature branches or worktrees by default for Mode B and Mode C.
 
-Direct commits to `main` are allowed only in solo-fast mode when all of these are true:
+Codex implementation for Mode B/C should happen on a feature branch or worktree by default.
+
+Direct commits or direct Codex edits to `main` are allowed only in solo-fast mode when all of these are true:
 
 - the project is personal;
 - the task is small;
@@ -323,19 +369,25 @@ Avoid:
 
 Request: "Add `.env.example` with `DATABASE_URL`."
 
-Action: Fable checks the repo convention, edits one file, runs `git diff`, and reports the created file plus any check limitation. No issue is required.
+Action: Fable checks the repo convention, uses a tiny Sonnet/Fable fallback edit without Codex because Codex overhead is not justified, runs `git diff`, and reports the fallback plus any check limitation. No issue is required.
 
 ### Mode B
 
 Request: "Add CSV export to the reports page."
 
-Action: Fable dispatches a Sonnet scout for relevant files, writes issue `#12` with scope, non-goals, files, acceptance criteria, verification command, and a pipeline journal. A Sonnet or optional Codex implementer works from the issue. A separate verifier checks acceptance criteria before the issue can close.
+Action: Fable dispatches a Sonnet scout for relevant files, writes issue `#12` with scope, non-goals, files, acceptance criteria, verification command, and a pipeline journal. Codex implements from the issue. Sonnet verifies acceptance criteria with clean context before Fable accepts or the issue can close.
 
 ### Mode C
 
 Request: "Add team billing with Stripe and admin UI."
 
-Action: Fable splits discovery across scouts, resolves architecture choices, creates issues for data model, backend billing flow, frontend admin UI, tests, and rollout. Sonnet implements ordinary workstreams unless optional Codex/Orca is available and useful. Opus 4.8 reviews the architecture and pre-merge production risks.
+Action: Fable splits discovery across Sonnet scouts, resolves architecture choices, creates issues for data model, backend billing flow, frontend admin UI, tests, and rollout. Codex implementers work from self-contained issues on branches/worktrees. Sonnet verifies each workstream. Opus 4.8 reviews architecture and pre-merge production risks.
+
+### Codex Unavailable
+
+Request: "Add CSV export to the reports page."
+
+Action: Because this is Mode B non-trivial code, Fable stops and reports that Codex setup/auth is unavailable. Continue only after Codex is ready or the user explicitly approves Sonnet fallback.
 
 ### Opus 4.8 Reviewer
 
@@ -350,11 +402,11 @@ You are the expert reviewer. Review the diff and issue #24 for architecture and 
 Bad:
 
 ```text
-Implemented and tested the fix.
+Codex implemented and tested the fix.
 ```
 
 Good:
 
 ```text
-Diff exists in src/export.ts and tests/export.test.ts. `npm test -- export` passed at 14:32. I have not run the full suite.
+Codex returned changes in src/export.ts and tests/export.test.ts. Sonnet verifier ran `npm test -- export` and it passed. Full suite was not run.
 ```
