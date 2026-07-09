@@ -12,7 +12,9 @@ Use this skill when Fable 5 should act as the expensive orchestrator, product/ar
 
 Fable keeps the goal, resolves forks, writes specifications, creates GitHub Issues when useful, assigns work, synthesizes subagent reports, makes final calls, verifies outcomes, and answers the user.
 
-Fable should not spend expensive context on mechanical reading or coding. GPT-5.6 Terra at high effort is the default hand for non-trivial implementation and code review when available. Sonnet 5 is the scout, reader, grep/search hand, GitHub/gh hand, verifier, and tiny fallback implementer. Opus 4.8 provides expert judgment for hard forks, deep debug, architecture, and risk.
+Fable should not spend expensive context on mechanical reading or coding. GPT-5.6 Terra at high effort is the default hand for non-trivial implementation and code review when available. Sonnet 5 is the scout, reader, grep/search hand, GitHub/gh hand, verifier, and tiny fallback implementer. Opus 4.8 provides expert judgment at explicit architecture and risk gates, not as the routine coding hand.
+
+Optimize for cost per accepted change, not the lowest token cost of a single worker. A self-contained spec, high-effort Terra implementation, and independent Sonnet verification should prevent most rework. Spend Opus 4.8 only where an incorrect decision would cost more than its review.
 
 Fable does not perform broad repo exploration by default. Scouts and implementers do that. However, Fable may inspect a small number of key files when needed to verify a critical decision, resolve conflicting subagent reports, check a risky API boundary, ground a source claim, or finalize a spec.
 
@@ -121,7 +123,7 @@ Routing is conceptual unless local Claude Code / Codex config confirms exact ali
 - Default coding hand: GPT-5.6 Terra at high effort. Use for non-trivial implementation, bug fixes, refactors, test creation/repair, multi-file code changes, and code review when available.
 - Default scout/verifier/gh hand: Sonnet 5. Use for repo reading, grep/search, GitHub operations, issue updates, verification, test runs, and factual reports.
 - Tiny fallback implementer: Sonnet 5 or Fable direct edit only for Mode A tasks where GPT-5.6 Terra overhead is not justified.
-- Expert reviewer/debugger: Opus 4.8. Use for architecture review, complex debugging, risky refactors, multi-system reasoning, final risk review, and cases where Sonnet/GPT-5.6 Terra reports uncertainty.
+- Expert decision gate: Opus 4.8. Use for architecture review, complex debugging, risky refactors, multi-system reasoning, final risk review, and unresolved uncertainty after focused discovery or verification.
 - Cheap scanner: Haiku. Use only for simple read-only discovery when speed/cost matters and the task is low-risk.
 
 Do not make Opus 4.8 the default for all subagents. It is the expensive specialist, not the routine workforce.
@@ -132,6 +134,16 @@ Do not make Sonnet 5 the default coding hand when GPT-5.6 Terra is ready.
 GPT-5.6 Terra at high effort is the default coding and code-review hand when available. Use it for implementation tasks, non-trivial code edits, bug fixes, refactors, test creation or repair, multi-file changes, and code review.
 
 Sonnet should not be the default coding hand when GPT-5.6 Terra is ready. Sonnet is primarily for scouting, reading files, grep/search, GitHub operations, verification, test execution, and Mode A tiny fallback edits.
+
+Use this quality-and-cost sequence for Mode B/C code tasks:
+
+1. Have Sonnet collect only the task-relevant facts and let Fable write a self-contained specification.
+2. Dispatch GPT-5.6 Terra at high effort to implement from that specification.
+3. Have Sonnet verify acceptance criteria with clean context and concrete evidence.
+4. If verification finds a local, deterministic defect, return it to GPT-5.6 Terra once with the failing evidence and exact acceptance criterion.
+5. Call Opus 4.8 when the defect exposes an architecture or risk decision, or the Terra retry still fails verification.
+
+Do not use Opus 4.8 merely because a routine test, lint check, or narrow acceptance criterion failed once. Do not skip independent Sonnet verification after an Opus 4.8 recommendation.
 
 When using GPT-5.6 Terra:
 
@@ -169,16 +181,20 @@ Avoid copying infrastructure-specific paths, session names, machine names, or co
 
 ## When To Call Opus 4.8
 
-Call Opus 4.8 when:
+Call Opus 4.8 as a required decision gate before merge or deploy when:
 
-- an architecture decision is needed;
-- the bug is non-obvious;
-- subagent reports conflict;
 - security, authorization, payments, user data, deployment, or production risk is involved;
-- the change crosses multiple systems;
-- a risk review is needed before merge or deploy;
-- GPT-5.6 Terra or Sonnet produced a working solution but reliability is uncertain;
-- the solution may be too direct and likely to create bad architecture.
+- an irreversible migration or materially risky rollout is involved;
+- the change crosses multiple systems and changes their contract or data flow;
+- an architecture decision remains open after focused discovery.
+
+Call Opus 4.8 as an escalation when:
+
+- the bug remains non-obvious after a scoped Terra implementation and Sonnet verification;
+- GPT-5.6 Terra's single evidence-backed retry still fails verification;
+- scout, implementer, and verifier reports materially conflict;
+- GPT-5.6 Terra or Sonnet identifies a reliability concern that cannot be resolved from evidence;
+- the proposed solution may create poor architecture or a risky long-term constraint.
 
 Do not call Opus 4.8 for:
 
@@ -187,7 +203,7 @@ Do not call Opus 4.8 for:
 - simple tests;
 - ordinary grep/read tasks;
 - formatting;
-- simple CRUD changes;
+- simple CRUD changes with no auth, data, or cross-system risk;
 - documentation without complex logic.
 
 ## Subagent Delegation
