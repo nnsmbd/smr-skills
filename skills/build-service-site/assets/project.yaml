@@ -1,0 +1,99 @@
+schema_version: 1
+
+project:
+  name: ""
+  mode: "new"
+  repository: ""
+  public_url: ""
+
+workflow:
+  phase: "discovery"
+  status: "in_progress"
+  last_updated: ""
+
+brief:
+  audience: ""
+  problem: ""
+  offer: ""
+  differentiation: ""
+  primary_cta: ""
+  secondary_cta: ""
+  proof_available: []
+  proof_needed: []
+  languages: []
+  regions: []
+  success_signals: []
+  constraints: []
+  non_goals: []
+
+content:
+  research_path: ""
+  approved_copy_path: ""
+  claim_ledger_path: ""
+  assets_path: ""
+
+design:
+  references_path: ""
+  directions_path: ""
+  selected_direction: ""
+  decision_path: ""
+  motion_principles: []
+
+modules:
+  core: true
+  lead_form: false
+  cases: false
+  faq: false
+  analytics: false
+  localization: false
+  cms: false
+  admin: false
+  crm: false
+  custom: []
+
+architecture:
+  stack: "undecided"
+  rendering_model: "undecided"
+  package_manager: "undecided"
+  decision_path: ""
+  verification_commands: []
+
+deployment:
+  mode: "undecided"
+  provider: ""
+  local_env_file: ".env.deploy.local"
+  required_env_names: []
+  healthcheck_path: "/"
+  rollback_documented: false
+
+github:
+  workflow: "undecided"
+  repository_visibility: "unknown"
+  epic: ""
+  project: ""
+  manager_available: false
+
+approvals:
+  brief:
+    status: "pending"
+    date: ""
+    evidence: ""
+  copy:
+    status: "pending"
+    date: ""
+    evidence: ""
+  design:
+    status: "pending"
+    date: ""
+    evidence: ""
+  pre_production:
+    status: "pending"
+    date: ""
+    evidence: ""
+  deploy:
+    status: "pending"
+    date: ""
+    evidence: ""
+
+open_questions: []
+assumptions: []
