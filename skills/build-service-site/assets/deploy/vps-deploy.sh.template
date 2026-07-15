@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${DEPLOY_HOST:?Set DEPLOY_HOST in an ignored local env file}"
+: "${DEPLOY_USER:?Set DEPLOY_USER in an ignored local env file}"
+: "${DEPLOY_SSH_KEY_PATH:?Set DEPLOY_SSH_KEY_PATH in an ignored local env file}"
+: "${DEPLOY_APP_DIR:?Set DEPLOY_APP_DIR in an ignored local env file}"
+: "${DEPLOY_SERVICE_NAME:?Set DEPLOY_SERVICE_NAME in an ignored local env file}"
+: "${DEPLOY_HEALTHCHECK_URL:?Set DEPLOY_HEALTHCHECK_URL in an ignored local env file}"
+
+# Replace these commands after the architecture gate.
+INSTALL_COMMAND="__INSTALL_COMMAND__"
+CHECK_COMMAND="__CHECK_COMMAND__"
+BUILD_COMMAND="__BUILD_COMMAND__"
+
+case "$INSTALL_COMMAND $CHECK_COMMAND $BUILD_COMMAND" in
+  *"__"*)
+    echo "Replace all command placeholders before using this template." >&2
+    exit 2
+    ;;
+esac
+
+repo_root=$(git rev-parse --show-toplevel)
+release_dir=$(mktemp -d)
+trap 'rm -rf "$release_dir"' EXIT
+
+git -C "$repo_root" archive HEAD | tar -x -C "$release_dir"
+
+ssh_args=(-i "$DEPLOY_SSH_KEY_PATH" -o BatchMode=yes)
+remote="$DEPLOY_USER@$DEPLOY_HOST"
+timestamp=$(date -u +%Y%m%dT%H%M%SZ)
+
+ssh "${ssh_args[@]}" "$remote" \
+  "mkdir -p '$DEPLOY_APP_DIR' \"$DEPLOY_APP_DIR.backups\" && tar -czf \"$DEPLOY_APP_DIR.backups/predeploy-$timestamp.tgz\" -C '$DEPLOY_APP_DIR' . 2>/dev/null || true"
+
+rsync -az --delete \
+  --exclude '.env*' \
+  --exclude 'node_modules' \
+  --exclude '.next' \
+  -e "ssh -i $DEPLOY_SSH_KEY_PATH -o BatchMode=yes" \
+  "$release_dir/" "$remote:$DEPLOY_APP_DIR/"
+
+ssh "${ssh_args[@]}" "$remote" \
+  "cd '$DEPLOY_APP_DIR' && $INSTALL_COMMAND && $CHECK_COMMAND && $BUILD_COMMAND && sudo systemctl restart '$DEPLOY_SERVICE_NAME'"
+
+curl --fail --silent --show-error --retry 8 --retry-delay 2 "$DEPLOY_HEALTHCHECK_URL" >/dev/null
+echo "Deployment health check passed. Backup: predeploy-$timestamp.tgz"
