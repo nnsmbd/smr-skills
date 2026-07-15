@@ -38,6 +38,8 @@ Separate a competitor's visible behavior from assumptions about its conversion p
 
 ## Reference-source roles
 
+Use the concrete recommended catalog in `reference-sources.md` when those services fit the project and are accessible. The categories below explain how to evaluate them and any alternatives the user provides.
+
 Use sources by property:
 
 - real product libraries: flows, navigation, form patterns, and interaction states;

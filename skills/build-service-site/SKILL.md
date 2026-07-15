@@ -70,7 +70,7 @@ Read `references/discovery.md`. Establish the business outcome, audience, offer,
 
 ### Research
 
-Read `references/competitor-research.md`. Research competitors and references by property, not by copying entire sites. Separate observed evidence, inference, inspiration, and conversion hypotheses. Never claim a source was reviewed unless it was opened or provided.
+Read `references/competitor-research.md` and `references/reference-sources.md`. Research competitors and references by property, not by copying entire sites. Use the recommended source catalog when it fits the task, but continue with user-provided or accessible alternatives when a service requires an unavailable account. Separate observed evidence, inference, inspiration, and conversion hypotheses. Never claim a source was reviewed unless it was opened or provided.
 
 ### Conversion copy
 
@@ -131,5 +131,6 @@ Use capability descriptions rather than hard-coded tool aliases. In Codex and Cl
 - `scripts/install.sh`: install the same skill for Codex, Claude Code, or both.
 - `scripts/validate-config.sh`: validate state structure and reject obvious private values.
 - `scripts/scan-private-data.sh`: scan intended publication scope for common secrets and user-supplied forbidden terms.
+- `references/reference-sources.md`: recommended research and workflow tools with direct links and usage boundaries.
 
 Do not copy every asset into every project. Use only the resources selected by the approved scope.
