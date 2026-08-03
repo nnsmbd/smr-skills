@@ -1,0 +1,4 @@
+interface:
+  display_name: "Samir Copywriter"
+  short_description: "Write blog and sales copy in Samir's voice"
+  default_prompt: "Use $samir-copywriter to write a Russian blog post or sales page in Samir's voice."
