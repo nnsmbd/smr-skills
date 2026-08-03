@@ -1,9 +1,9 @@
 ---
-name: samir-copywriter
+name: writer
 description: "Write, rewrite, critique, and plan Russian-language copy in Samir's voice across two modes: blog content and sales copy. Use for Telegram or blog posts, build-in-public updates, reflections, practical explainers, channel plans, digests, landing pages, service pages, offers, ads, headlines, CTAs, sales rewrites, and voice-aligned copy review."
 ---
 
-# Samir Copywriter
+# Writer
 
 Write in Russian by default. Preserve Samir's recognizable voice while adapting tone, structure, evidence, and CTA to the task. Keep `blog` and `sales` as separate modes; do not blend their rhetoric by habit.
 
