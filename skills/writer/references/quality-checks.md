@@ -2,6 +2,14 @@
 
 Run these checks silently before returning final copy. Show the audit only when the user asks for review, scoring, or rationale.
 
+## Intake gate
+
+- Were all available answers extracted before asking questions?
+- Were only material gaps asked, within the selected `quick`, `brief`, or `audit` depth?
+- Is every fact in the brief either provided, verified, or clearly treated as an assumption?
+- If blocking questions remain, was speculative copy withheld?
+- After the user answered, did drafting continue without unnecessary repetition or confirmation?
+
 ## Universal gate
 
 - Is the operation and mode correct?
