@@ -1,4 +1,4 @@
 interface:
   display_name: "Writer"
-  short_description: "Write blog and sales copy in Samir's voice"
-  default_prompt: "Use $writer to write a Russian blog post or sales page in Samir's voice."
+  short_description: "Write, repurpose, review, and learn Samir's voice"
+  default_prompt: "Use $writer to create or adapt content in Samir's voice and learn from my edits."

@@ -27,7 +27,7 @@ When no depth is specified:
 
 - use `audit` for review-only requests;
 - use `brief` for new sales pages, offers, ads, email sequences, or materially commercial rewrites;
-- use `quick` for blog posts and small rewrites when enough context is available;
+- use `quick` for ordinary content and small rewrites when enough context is available;
 - upgrade to `brief` for regulated, high-stakes, strategically ambiguous, or evidence-sensitive work.
 
 Do not interpret `audit` as permission to rewrite. Rewrite only when the user asks for a revision or new draft.
@@ -62,7 +62,7 @@ Do not produce a speculative draft in the same response as blocking questions.
 
 Let the user answer `нет`, `не знаю`, or `не определено`. Adapt the strategy instead of forcing invented certainty.
 
-## Ask for blog inputs
+## Ask for content inputs
 
 Establish these required fields:
 
@@ -72,6 +72,10 @@ Establish these required fields:
 4. `Value`: what the reader should understand, try, feel, or discuss.
 5. `Response`: conversation, documentation, authority, traffic, announcement, or another intended result.
 6. `Delivery`: channel, approximate format, and constraints when they matter.
+
+For social content, identify `telegram`, `instagram`, `threads`, or `x`. For Instagram, identify caption, carousel, Reel caption, or Story sequence when it materially changes the result. For cross-posting, identify the canonical source, target channels, and whether the user wants `verbatim`, `adapted`, or `teaser`; infer these when obvious.
+
+For `learn-from-edits`, require a reliably identified before/after pair. Ask which version is the AI draft only when filenames and context do not establish it. Do not request a questionnaire about the article again.
 
 Ask about the desired emotion, hook, or ending only when it materially affects the piece. Do not demand a personal story for a non-personal explainer.
 

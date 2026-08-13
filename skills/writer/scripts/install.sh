@@ -10,11 +10,12 @@ dry_run=false
 
 usage() {
   cat <<'USAGE'
-Usage: install.sh [--target codex|claude|both] [--force] [--dry-run]
+Usage: install.sh [--target codex|claude|agents|both|all] [--force] [--dry-run]
 
 Environment overrides:
   CODEX_HOME   Defaults to $HOME/.codex
   CLAUDE_HOME  Defaults to $HOME/.claude
+  AGENTS_HOME  Defaults to $HOME/.agents
 USAGE
 }
 
@@ -45,9 +46,9 @@ while (($#)); do
 done
 
 case "$target" in
-  codex|claude|both) ;;
+  codex|claude|agents|both|all) ;;
   *)
-    echo "--target must be codex, claude, or both" >&2
+    echo "--target must be codex, claude, agents, both, or all" >&2
     exit 2
     ;;
 esac
@@ -100,6 +101,7 @@ install_one() {
 
 codex_home=${CODEX_HOME:-"$HOME/.codex"}
 claude_home=${CLAUDE_HOME:-"$HOME/.claude"}
+agents_home=${AGENTS_HOME:-"$HOME/.agents"}
 
 case "$target" in
   codex)
@@ -108,8 +110,16 @@ case "$target" in
   claude)
     install_one claude "$claude_home"
     ;;
+  agents)
+    install_one agents "$agents_home"
+    ;;
   both)
     install_one codex "$codex_home"
     install_one claude "$claude_home"
+    ;;
+  all)
+    install_one codex "$codex_home"
+    install_one claude "$claude_home"
+    install_one agents "$agents_home"
     ;;
 esac

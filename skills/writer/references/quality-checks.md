@@ -1,101 +1,76 @@
 # Quality Checks
 
-Run these checks silently before returning final copy. Show the audit only when the user asks for review, scoring, or rationale.
-
-## Intake gate
-
-- Were all available answers extracted before asking questions?
-- Were only material gaps asked, within the selected `quick`, `brief`, or `audit` depth?
-- Is every fact in the brief either provided, verified, or clearly treated as an assumption?
-- If blocking questions remain, was speculative copy withheld?
-- After the user answered, did drafting continue without unnecessary repetition or confirmation?
+Run relevant checks silently before delivering copy. Show findings only for review, audit, rationale, or learning requests.
 
 ## Universal gate
 
-- Is the operation and mode correct?
-- Is the audience relationship consistent: `ты` or `вы`?
-- Does the opening contain a real reason to continue?
-- Is every paragraph doing a distinct job?
-- Are concrete details accurate and useful?
-- Does the text sound spoken without becoming sloppy?
-- Has accidental repetition been removed?
-- Is formatting useful on mobile?
-- Is the requested action clear and proportionate?
-- Are all unresolved facts visibly marked?
+- Are operation, mode, family, and channel correct?
+- Does the asset have one central promise or intended action?
+- Does every section advance that promise rather than merely expose available research?
+- Are facts provided, verified, or visibly unresolved?
+- Is `ты` or `вы` consistent?
+- Does the wording sound spoken without preserving accidental errors?
+- Is formatting useful for the selected channel?
+- Does the ending fit instead of mechanically asking for engagement?
 
-## Voice fidelity
+## Five-layer voice gate
 
-Score each dimension `0`, `1`, or `2`:
+Check against approved evidence:
 
-| Dimension | 0 | 1 | 2 |
-|---|---|---|---|
-| lived grounding | invented or abstract | some context | concrete experience or evidence |
-| specificity | generic | mixed | precise where it matters |
-| system thinking | random list | partial structure | clear useful organization |
-| humanity | sterile or performative | uneven | candid and natural |
-| self-irony | forced or excessive | absent but unnecessary | restrained and useful |
-| rhythm | monotonous | readable | varied and mobile-friendly |
+- `lexicon`: no rejected or generic phrasing; technical vocabulary has a real job;
+- `syntax`: sentence construction fits the channel without forced fragments;
+- `rhythm`: variation feels natural; jokes and short punches are not scheduled by quota;
+- `structure`: section order fulfills the asset's promise;
+- `voice markers`: any distinctive move is grounded and rationed.
 
-Do not force every dimension to appear. A serious sales page may need little self-irony. A short observation may not need a framework.
+Do not generate a numeric voice score. Locate concrete mismatches.
 
-## Blog gate
+## Channel gate
 
-- Does the post start from something real rather than a generic topic?
-- Is there at least one detail that only this author would plausibly choose?
-- Has the text avoided pretending an unfinished idea is a universal truth?
-- Is the reader value visible without turning the post into a lecture?
-- Is the ending natural, or was a question/CTA added mechanically?
-- If it is a digest, are counts, links, names, and quotations verified and attributed?
+- `site-blog`: has enough argument and context; does not become an audit dump or stretched Telegram post.
+- `telegram`: scans naturally on mobile and starts from something real.
+- `instagram`: the asset type is correct and text works with, but does not depend on, missing visuals.
+- `threads`: each post extends one connected thought rather than repeating it.
+- `x`: the main claim survives alone and compression has not distorted truth.
+
+Treat provisional channel rules as conventions, not proof of Samir's personal style.
+
+## Repurpose gate
+
+- Was one canonical content packet used for every target?
+- Do thesis, facts, author position, and prohibitions remain stable?
+- Is each version rebuilt for the channel rather than mechanically shortened?
+- Do all variants share one `content_id` and distinct `source_id` values when stored?
+- Has a derived variant avoided becoming independent evidence before user approval?
 
 ## Sales gate
 
-- Can the intended buyer, offer, mechanism, and next action be stated in one sentence each?
-- Does the structure match awareness, funnel position, and traffic source?
-- Does every material claim have `provided` or `verified` status?
-- If proof is missing, has the gap been handled outside the publishable copy or replaced with honest process proof instead of being unnecessarily advertised?
-- Are proof and testimonials represented without strengthening them?
-- Are urgency, scarcity, guarantees, and affiliations real and approved?
-- Are objections answered with evidence or logic rather than pressure?
+- Are buyer, offer, mechanism, proof, objections, and next action clear?
+- Does every material claim have supplied or verified support?
+- Are urgency, scarcity, guarantees, affiliations, and testimonials real and approved?
 - Does the CTA describe the actual next step?
-- Is message match preserved across the ad, page, form, and follow-up?
 
-Do not claim the result will convert. A rubric detects obvious weaknesses; only real tests and business outcomes measure conversion.
+Do not claim that a rubric predicts conversion.
 
-## AI-slop pass
+## AI-slop and compression
 
-Delete or rewrite generic phrases unless the surrounding evidence makes them necessary:
+Rewrite generic constructions such as `в современном мире`, `давайте погрузимся`, `сегодня я хочу поговорить`, `вывести на новый уровень`, `раскрыть потенциал`, unsupported `революционный/инновационный/уникальный`, `это не просто X, это Y`, empty rule-of-three lists, repeated rhetorical questions, manufactured punchlines, and conclusions that repeat the introduction.
 
-- `в современном мире`;
-- `давайте погрузимся`;
-- `сегодня я хочу поговорить`;
-- `вывести на новый уровень`;
-- `раскрыть потенциал`;
-- `революционный`, `инновационный`, `уникальный` without proof;
-- `это не просто X, это Y`;
-- `будь то X, Y или Z`;
-- repeated rhetorical questions;
-- empty rule-of-three lists;
-- excessive em dashes, fragments, bold, caps, or emojis;
-- a conclusion that merely restates the introduction.
-
-Do not ban a word blindly. Remove the generic pattern, not legitimate meaning.
-
-## Read-aloud and compression pass
-
-1. Read the text as speech.
-2. Fix any sentence that requires a second reading.
-3. Cut throat-clearing and repeated claims.
-4. Replace abstract praise with an example, mechanism, or proof.
-5. Check punctuation and agreement.
-6. Confirm that compression did not remove Samir's human detail or useful caveat.
+Read the text aloud. Fix sentences that need a second reading, remove throat-clearing and repeated claims, and preserve real human detail during compression.
 
 ## Review output
 
-When the user asks for a copy review, return:
+Start with the highest-impact strategic issue. Then format every material finding as:
 
-1. classification and intended action;
-2. the highest-impact strategic issue;
-3. prioritized findings with `location → issue → fix`;
-4. unsupported or risky claims;
-5. the three most valuable changes;
-6. a revised version when requested.
+```text
+priority → location → issue → fix → principle → evidence
+```
+
+- `priority`: high, medium, or low impact for the stated goal;
+- `location`: exact line, phrase, or section;
+- `issue`: what fails and why;
+- `fix`: a concrete replacement or direction;
+- `principle`: the reusable reasoning;
+- `evidence`: user feedback, corpus source, supplied fact, or channel rule.
+
+End with the three most valuable changes when more than three findings exist. Add a rewritten version only when requested.
