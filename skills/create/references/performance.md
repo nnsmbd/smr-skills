@@ -161,6 +161,8 @@ Support these primary placements:
 - `9:16` Stories or Reels static;
 - `1:1` square.
 
+Route exact headlines, prices, offers, badges, logos, charts, and measured layout to deterministic layers. Keep those elements out of imagegen when their spelling, font, color, or geometry is critical.
+
 Design for a small screen:
 
 - one clear focal point;

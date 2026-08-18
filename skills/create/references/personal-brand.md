@@ -17,7 +17,7 @@ Use this pipeline:
 
 ```text
 request -> context -> communication goal -> visual concept -> art direction
--> CreativeSpec -> generation -> visual QA -> iteration/adaptation
+-> CreativeSpec -> render routing -> production -> visual QA -> iteration/adaptation
 ```
 
 Extract only relevant inputs:
@@ -32,6 +32,8 @@ Extract only relevant inputs:
 - realism versus abstraction;
 - art direction;
 - references and their roles.
+
+When visible copy, a named font, exact colors, or measured editorial typography matters, route those layers to the deterministic compositor. Use imagegen for the scene or texture, not for critical typesetting.
 
 Do not require product, offer, pain, proof, CTA, or a performance framework unless the request actually uses them.
 
@@ -127,3 +129,5 @@ Use locks selectively:
 Never enable `BRAND LOCK` automatically. When adapting a series, preserve the approved concept and relevant locks while recomposing for each destination.
 
 Evaluate the final visual for idea fidelity, focal point, hierarchy, intentional art direction, mood, exact copy, artifacts, locks, and destination fit. Do not judge personal-brand work only by direct-response advertising criteria.
+
+For a hybrid visual, preserve the LayerPlan as the editable production source. A typography-only change should rerender without changing the approved raster scene.

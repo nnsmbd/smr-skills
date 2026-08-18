@@ -217,6 +217,16 @@ locks: [COPY]
 mutable: [palette, material treatment, lighting]
 ```
 
+If the user supplies an exact headline, named font, hexadecimal colors, or measured layout, route the scene and typography separately:
+
+```text
+render_mode: hybrid
+imagegen: conceptual editorial scene without critical text
+html: exact headline, font, color, position, and transforms
+```
+
+Create a LayerPlan with the approved scene as a ready raster layer and the headline as one or more text layers. If the user later asks to change only headline scale, tracking, or position, update the LayerPlan and rerender without calling imagegen.
+
 ### QA
 
-Check idea fidelity, focal point, hierarchy, intentional art direction, exact headline if present, artifacts, and destination fit. Do not reject it merely for lacking a CTA or product.
+First require deterministic PASS for canvas size, exact headline, font, colors, bounds, and protected zones. Then inspect the PNG for idea fidelity, focal point, hierarchy, intentional art direction, artifacts, and destination fit. Do not reject it merely for lacking a CTA or product.

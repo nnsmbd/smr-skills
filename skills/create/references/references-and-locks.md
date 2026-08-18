@@ -88,6 +88,8 @@ MUTABLE
 
 Do not mark the same element as both immutable and mutable.
 
+For hybrid production, carry locks into the LayerPlan. Keep protected raster asset paths unchanged during typography or layout iterations, and keep protected text values, font files, colors, and geometry unchanged during raster repairs. A lock applies across renderer boundaries.
+
 ## Product fidelity
 
 When a real product source exists:
@@ -118,3 +120,5 @@ KEEP EXACTLY
 ```
 
 Use adaptation when the destination changes. Preserve angle, copy, subject/product identity, and applicable brand rules, but allow a deliberate reflow of spacing, scale, position, negative space, and typography size. Do not apply `COMPOSITION LOCK` so rigidly that it forces a broken crop; preserve composition logic rather than exact coordinates when recomposing between aspect ratios.
+
+When the defect belongs to a deterministic layer, update the LayerPlan rather than sending the full composited PNG to imagegen. When the defect belongs to a raster layer, edit that source asset and rerender deterministic layers unchanged.

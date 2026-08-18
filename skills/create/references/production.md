@@ -3,10 +3,11 @@
 ## Contents
 
 1. CreativeSpec
-2. Prompt compiler
-3. Exact visible copy
-4. Generation and edit routing
-5. Built-in runtime contract
+2. Render selection
+3. Prompt compiler
+4. Exact visible copy
+5. Generation and edit routing
+6. Built-in raster runtime contract
 
 ## CreativeSpec
 
@@ -16,11 +17,15 @@ Build a normalized internal representation after concept approval or during expl
 track: performance | personal-brand
 operation: create | reference | product | ugc | mutate | adapt | repair
 pace: gated | direct
+render_mode: generative | hybrid | deterministic
 
 objective:
 destination:
 placement:
 aspect_ratio:
+delivery:
+  raster: true
+  reproducible_source: false
 
 audience:
 segment:
@@ -55,6 +60,16 @@ Performance requests commonly use audience, insight, angle, framework, offer, an
 
 Keep facts and hypotheses distinct. Preserve exact user strings as literal values. Do not expose the full schema unless it helps the user review or reuse the specification.
 
+## Render selection
+
+Read [render-routing.md](render-routing.md) and select renderers from actual layer requirements.
+
+- `generative`: image-led work without critical deterministic elements;
+- `hybrid`: generated raster assets plus exact text, logos, shapes, or layout;
+- `deterministic`: typography-, shape-, card-, chart-, or layout-led work without generated assets.
+
+When `hybrid` or `deterministic` applies, read [layer-plan.md](layer-plan.md) and create the JSON LayerPlan before final production. Keep the CreativeSpec strategic and semantic; keep coordinates, fonts, colors, transforms, and asset paths in the LayerPlan.
+
 ## Prompt compiler
 
 Compile the render prompt from the CreativeSpec. Use only relevant sections in this order:
@@ -75,7 +90,7 @@ Compile the render prompt from the CreativeSpec. Use only relevant sections in t
 
 Prefer short, explicit sentences over keyword soup. Specify concrete layout, subject, lighting, material, and hierarchy only when they support the chosen concept. Remove duplicate requirements and omit empty sections.
 
-Use the `$imagegen` taxonomy when compiling the production prompt. Most performance work maps to `ads-marketing`, product-led scenes may map to `product-mockup`, natural creator scenes to `photorealistic-natural`, and repairs to the closest edit taxonomy.
+Use the `$imagegen` taxonomy only when compiling an imagegen layer prompt. Most performance work maps to `ads-marketing`, product-led scenes may map to `product-mockup`, natural creator scenes to `photorealistic-natural`, and repairs to the closest edit taxonomy.
 
 Example scaffold:
 
@@ -112,20 +127,22 @@ OUTPUT FORMAT
 
 ## Exact visible copy
 
-Represent every customer-facing string literally and quote it. Include:
+Represent every customer-facing string literally and quote it. For generative typography, include:
 
 ```text
 Render every supplied string verbatim.
 Do not rewrite, translate, paraphrase, duplicate, or add additional text.
 ```
 
-For difficult names, optionally spell the word character by character while preserving the final intended string. Treat text rendering as something to inspect, not as guaranteed accuracy.
+For difficult names, optionally spell the word character by character while preserving the final intended string. Treat generative text rendering as something to inspect, not as guaranteed accuracy.
+
+When the text, font, capitalization, line break, color, position, or transform is critical, route it to an HTML text layer instead of repeating stronger wording to imagegen. A named font should normally have an approved local font file in the LayerPlan.
 
 Do not let the image model invent price, discount, review, rating, certification, medical claim, feature, statistic, or legal copy. If missing factual text is essential, stop before final generation and ask for it.
 
 ## Generation and edit routing
 
-Use generation when creating a new scene and references only guide product, style, composition, mood, or subject.
+Use generation when creating a new scene or asset and references only guide product, style, composition, mood, or subject.
 
 Use edit when changing an existing image while preserving selected elements. For `repair`, write an edit prompt with:
 
@@ -137,11 +154,11 @@ KEEP EXACTLY
 - <all protected elements>
 ```
 
-Repeat the invariants on every edit. Do not regenerate a successful scene to fix one localized defect.
+Repeat the invariants on every edit. Do not regenerate a successful scene to fix one localized defect. Do not call imagegen when the requested change affects only deterministic copy, color, size, spacing, position, or transform fields.
 
 For multiple distinct concepts or deliverables, use one built-in generation call per concept or deliverable. Do not treat several uncontrolled outputs as an A/B test.
 
-## Built-in runtime contract
+## Built-in raster runtime contract
 
 Load and follow `$imagegen` before calling image generation or editing. Use its default built-in path. Never:
 
@@ -154,6 +171,8 @@ Load and follow `$imagegen` before calling image generation or editing. Use its 
 Inspect local edit targets with the supported image viewer first. Respect `$imagegen` save-path behavior: preview-only assets may remain in the generated-image location, while project-bound finals must be copied into the project and reported to the user.
 
 Treat GPT Image 2 capabilities as useful but not guaranteed outcomes: generation and editing, flexible image sizes, high-fidelity image inputs, strong instruction following, text rendering, layout handling, and visual reasoning. Rely on QA rather than marketing percentages or promises.
+
+The local compositor is a separate deterministic production path. It requires no additional image API or provider. Use it to assemble approved local raster assets with exact HTML/CSS/SVG layers, then render through Playwright. Do not confuse local deterministic composition with an imagegen fallback.
 
 When a request depends on exact current model limits or behavior, verify the current official OpenAI documentation instead of relying on remembered parameters:
 

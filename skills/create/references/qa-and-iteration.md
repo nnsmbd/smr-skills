@@ -2,16 +2,32 @@
 
 ## Contents
 
-1. Inspection requirement
-2. QA checklist
-3. PASS, EDIT, REJECT
-4. Surgical iteration
-5. Placement adaptation
-6. Performance mutation
+1. Deterministic QA
+2. Inspection requirement
+3. QA checklist
+4. PASS, EDIT, REJECT
+5. Surgical iteration
+6. Placement adaptation
+7. Performance mutation
+
+## Deterministic QA
+
+For `hybrid` or `deterministic` production, run the LayerPlan renderer before visual inspection. Require a deterministic `PASS` for:
+
+- exact CSS canvas and PNG pixel dimensions;
+- exact strings and capitalization;
+- loaded fonts;
+- computed colors;
+- local asset loading;
+- bounds, overflow, clipping, protected zones, and declared overlap constraints.
+
+Treat deterministic failure as a blocking defect. Correct the LayerPlan, source asset, or font and rerender. Do not use visual judgment to waive a misspelled string, missing font, wrong output size, or failed protected zone.
+
+The renderer records `visualStatus: NOT_REVIEWED`. Change the user-facing classification only after inspecting the PNG.
 
 ## Inspection requirement
 
-Inspect every visible output after generation or edit. Compare it against the approved concept, CreativeSpec, source images, exact copy, locks, and destination.
+Inspect every visible output after generation, edit, or deterministic composition. Compare it against the approved concept, CreativeSpec, LayerPlan when present, source images, exact copy, locks, and destination.
 
 If the result cannot be seen, report `NOT REVIEWED` rather than `PASS`. Ask the user to attach it again or use the supported image-inspection flow when a local file is available.
 
@@ -54,9 +70,9 @@ For personal brand, confirm idea fidelity, intentional focal point, hierarchy, m
 
 ## PASS, EDIT, REJECT
 
-Use `PASS` only when no critical defect blocks the intended use. Mention material limitations; do not imply perfection.
+Use `PASS` only when no critical defect blocks the intended use. A composed creative needs both deterministic QA and visual QA. Mention material limitations; do not imply perfection.
 
-Use `EDIT` when the concept and most of the image work, and a local correction can preserve successful elements. Examples: one text error, a small unwanted object, a background-only change, a localized artifact, or a controlled color adjustment.
+Use `EDIT` when the concept and most of the image work, and a local correction can preserve successful elements. Examples: one text-layer geometry change, a small unwanted object, a background-only change, a localized artifact, or a controlled color adjustment.
 
 Use `REJECT` when the central concept, product/subject identity, composition, hierarchy, or reference interpretation is fundamentally wrong, or when local editing would cause more drift than regeneration.
 
@@ -71,7 +87,9 @@ Next action:
 
 ## Surgical iteration
 
-For `EDIT`, compile a prompt with `CHANGE ONLY` and `KEEP EXACTLY`. Repeat all relevant locks and reference roles. Do not introduce a new concept during repair.
+For an imagegen `EDIT`, compile a prompt with `CHANGE ONLY` and `KEEP EXACTLY`. Repeat all relevant locks and reference roles. Do not introduce a new concept during repair.
+
+For a deterministic `EDIT`, change only the declared LayerPlan fields and rerender. Do not regenerate or re-edit raster assets when they are already correct.
 
 After the edit, inspect the complete image again. A repaired defect does not guarantee that preserved elements remained intact.
 

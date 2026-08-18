@@ -66,7 +66,7 @@ trap cleanup EXIT
 
 cp -R "$source_dir/." "$staging/"
 
-if [[ ! -f "$staging/SKILL.md" ]]; then
+if [[ ! -f "$staging/SKILL.md" || ! -x "$staging/scripts/render-creative.cjs" ]]; then
   echo "Staging validation failed for Codex" >&2
   exit 1
 fi

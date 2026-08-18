@@ -1,11 +1,11 @@
 ---
 name: create
-description: "Direct, generate, edit, adapt, mutate, repair, and visually QA static raster creatives with Codex's built-in GPT Image workflow. Use for Meta or Instagram ads, product and e-commerce creatives, UGC-style ads, service ads, personal-brand posts, carousel or Reels covers, Stories, Telegram and article visuals, editorial posters, announcement graphics, reference-led visual work, placement adaptations, and controlled iterations of an existing image. Do not use for video, generic code or document creation, UI implementation, SVG/vector production, or unrelated image requests that do not need advertising or personal-brand creative direction."
+description: "Direct, generate, compose, render, edit, adapt, mutate, repair, and visually QA static creatives with Codex's built-in GPT Image workflow plus deterministic HTML/CSS/SVG composition when typography or layout must be exact. Use for Meta or Instagram ads, product and e-commerce creatives, UGC-style ads, service ads, personal-brand posts, carousel or Reels covers, Stories, Telegram and article visuals, editorial posters, announcement graphics, reference-led visual work, placement adaptations, and controlled iterations of an existing creative. Do not use for video, generic code or document creation, UI implementation, standalone website work, standalone SVG/vector production, or unrelated image requests that do not need advertising or personal-brand creative direction."
 ---
 
 # Create
 
-Lead static visual work as a creative director and art director before using image generation. Turn a request into a deliberate concept, a normalized CreativeSpec, a concise render or edit prompt, a reviewed image, and controlled follow-up iterations.
+Lead static visual work as a creative director and art director before production. Turn a request into a deliberate concept, a normalized CreativeSpec, the smallest useful LayerPlan, correctly routed raster and deterministic layers, a reviewed image, and controlled follow-up iterations.
 
 Write user-facing responses in the user's language. Keep internal labels and render prompts in English unless exact visible copy requires another language.
 
@@ -61,23 +61,27 @@ Recommend one concept and request a clear selection. Do not write a full render 
 
 For `mutate`, `adapt`, or `repair`, replace the concept gate with a compact diagnosis and proposed change set. Ask for approval only when the requested change or preserved elements are ambiguous.
 
-### 3. Build the CreativeSpec
+### 3. Build the production specification
 
 After approval—or immediately in explicit `direct` pace—read [references/production.md](references/production.md) and build the smallest useful CreativeSpec. Keep absent or irrelevant fields out. Do not dump the complete internal schema unless the user asks for it.
 
 Read [references/references-and-locks.md](references/references-and-locks.md) whenever images, product fidelity, identity preservation, locks, adaptation, or repair are involved.
 
+Read [references/render-routing.md](references/render-routing.md) whenever the creative contains visible copy, a named font, exact colors, logos, shapes, charts, measured layout, reusable variants, or a mix of generated and deterministic elements. Route each layer to `imagegen` or `html`; do not route the entire creative by habit.
+
 ### 4. Compile and produce
 
-Compile a structured, relatively concise prompt from the CreativeSpec. Include only relevant sections and remove duplicated instructions.
+For an `imagegen` layer, compile a structured, relatively concise prompt from the CreativeSpec. Include only relevant sections and remove duplicated instructions.
 
-Before every generation or edit, load and follow the installed `$imagegen` skill. Use its default built-in image generation/editing path only. Do not introduce an OpenAI API dependency, request an API key, use its CLI fallback, or switch to another image service.
+Before every raster generation or edit, load and follow the installed `$imagegen` skill. Use its default built-in image generation/editing path only. Do not introduce an OpenAI API dependency, request an API key, use its CLI fallback, or switch to another image service.
 
 For a local edit target, make the image visible to the model through the supported image-inspection flow before editing. For multiple distinct deliverables, use separate built-in generation calls rather than pretending one result is a controlled batch.
 
+For `hybrid` or `deterministic` production, read [references/layer-plan.md](references/layer-plan.md), serialize a JSON LayerPlan, and use `scripts/render-creative.cjs`. Keep exact copy, named fonts, logos, prices, badges, charts, and measured geometry out of the imagegen prompt and compose them as deterministic layers. Reuse approved raster assets when only deterministic fields change.
+
 ### 5. Inspect and iterate
 
-After every generated or edited result that can be seen, read [references/qa-and-iteration.md](references/qa-and-iteration.md) and classify it as `PASS`, `EDIT`, or `REJECT`.
+After every generated, edited, or composed result that can be seen, read [references/qa-and-iteration.md](references/qa-and-iteration.md) and classify it as `PASS`, `EDIT`, or `REJECT`.
 
 - Use `EDIT` for a local defect that can be changed without disturbing the successful image.
 - Use `REJECT` when the concept, identity, hierarchy, composition, or fidelity is fundamentally wrong.
@@ -95,15 +99,16 @@ Repeat preserved invariants on every edit. Change one targeted variable at a tim
 
 ## Output contract
 
-Keep responses short and decision-oriented. At concept stage, show concepts, recommendation, and the single next decision. At production stage, show the selected direction and generation status, not internal documentation. After QA, report the classification, material findings, the targeted next action, the final render/edit prompt, confirmation that the built-in image path was used, and the saved path when the asset is project-bound.
+Keep responses short and decision-oriented. At concept stage, show concepts, recommendation, and the single next decision. At production stage, show the selected direction and production status, not internal documentation. After QA, report the classification, material findings, targeted next action, which render path was used, and saved paths when the asset is project-bound. Include the final imagegen prompt for generated layers; for deterministic work, report the LayerPlan and reproducibility artifacts instead of inventing an image prompt.
 
 Use [references/examples.md](references/examples.md) only when a worked pattern would materially improve routing or execution.
 
 ## Hard boundaries
 
-- Support static raster visuals only in V1.
+- Support static visual deliverables only. HTML/CSS/SVG may be used internally for deterministic composition, but the skill must not trigger for generic web or vector work.
 - Do not automate Meta APIs, scrape competitors, control Canva/Figma, create persistent client databases, or build API wrappers.
 - Do not promise perfect text, logos, identity, packaging, colors, or consistency. Protect them with references, locks, and visual QA.
+- Do not ask image generation to render critical typography when the local compositor can place it exactly.
 - Do not invent a permanent brand system from one generated image or temporary direction.
 - Do not copy a reference's protected identity, logo, product, or complete composition; transfer only the explicitly assigned principles.
 
