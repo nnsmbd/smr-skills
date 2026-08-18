@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create"
+  short_description: "Direct and produce visual creatives with GPT Image"
+  default_prompt: "Use $create to develop and produce a static visual creative from brief through generation, QA, and iteration."
