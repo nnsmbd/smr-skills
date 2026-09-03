@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "case_id": "client-or-project-slug",
+  "workflow": {
+    "phase": "discovery",
+    "status": "in_progress",
+    "updated_at": "YYYY-MM-DD",
+    "completed": [],
+    "missing": [],
+    "skipped": [],
+    "needs_verification": [],
+    "unresolved_conflicts": []
+  },
+  "identity": {
+    "client_name": { "value": null, "status": "unknown", "visibility": "private" },
+    "public_name": { "value": null, "status": "unknown", "visibility": "public" },
+    "niche": { "value": null, "status": "unknown", "visibility": "public" }
+  },
+  "case_config": {
+    "depth": "standard",
+    "modules": {},
+    "metrics": { "include": [] },
+    "privacy": {},
+    "interview": { "excluded_topics": [], "custom_questions": [] }
+  },
+  "sources": [],
+  "metrics": [],
+  "baseline": [],
+  "objectives": [],
+  "constraints": [],
+  "observations": [],
+  "decisions": [],
+  "experiments": [],
+  "results": [],
+  "attribution": [],
+  "proof": [],
+  "quotes": [],
+  "public_case": null
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "case_id": "validator-fixture",
+  "workflow": { "unresolved_conflicts": [] },
+  "case_config": { "depth": "standard" },
+  "sources": [
+    { "id": "client-brief", "type": "user" },
+    { "id": "work-log", "type": "user" },
+    { "id": "meta-q1", "type": "meta_mcp" }
+  ],
+  "metrics": [
+    {
+      "id": "cpa-q1",
+      "metric": "CPA",
+      "value": 6.74,
+      "unit": "USD per purchase",
+      "period": { "from": "2026-01-01", "to": "2026-03-31" },
+      "classification": "FACT",
+      "source_ids": ["meta-q1"],
+      "verified": true,
+      "visibility": "public"
+    }
+  ],
+  "public_case": {
+    "case": {
+      "slug": "validator-fixture",
+      "title": "CPA $6.74 за подтверждённый период",
+      "niche": "E-commerce",
+      "period": "январь — март 2026",
+      "metrics": [{ "value": "$6.74", "label": "CPA", "isPrimary": true }],
+      "summary": "Проверяемая сводка тестового кейса.",
+      "fullStory": {
+        "task": "Подтверждённая задача.",
+        "approach": "Подтверждённое действие.",
+        "result": "Подтверждённый результат."
+      }
+    },
+    "metric_evidence": { "CPA": ["cpa-q1"] },
+    "claim_evidence": {
+      "title": ["cpa-q1"],
+      "summary": ["cpa-q1"],
+      "fullStory.task": ["client-brief"],
+      "fullStory.approach": ["work-log"],
+      "fullStory.result": ["cpa-q1"]
+    }
+  }
+}
