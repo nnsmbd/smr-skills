@@ -10,7 +10,7 @@ Create a factual case record first, then make a deliberately smaller public case
 ## Start and resume
 
 1. Identify the operation from the request: `new`, `restore`, `import`, `configure`, `interview`, `verify`, `draft`, `review`, `publish`, or `resume`. Natural-language requests map to the same operations.
-2. Inspect the supplied materials and relevant project before asking anything. For `smr-web`, read [the publication contract](references/smr-web-contract.md) before proposing a public result.
+2. Inspect the supplied materials and relevant project before asking anything. For `smr-web`, read [the publication contract](references/smr-web-contract.md) before proposing a public result. When Meta Ads is an available, requested, or likely evidence source, read [the Meta Ads integration contract](references/meta-ads-integration.md).
 3. Find an existing local record before starting another one. Store working records in `.smr-case-studies/<case-id>/case.json` by default and add that directory to the target project's ignored local files. Keep raw exports and screenshots outside version control unless the user explicitly approves their publication.
 4. State the known facts, sources found, unresolved conflicts, current phase, and the single most useful next action. Resume from the earliest incomplete phase; do not restart the brief.
 
@@ -26,9 +26,10 @@ The user can change the structure, privacy, selected metrics, questions, or dept
 
 Read [the canonical data model](references/canonical-record.md) before creating or editing a record.
 
-- Import every available source before interviewing. With Meta access, identify the account and period, retrieve reported metrics and entities, then prepare findings. Distinguish an observed sequence from a causal claim.
+- Discover relevant sources before interviewing. When Meta Ads is an available or likely source and `case_config.sources.meta_ads` permits it, use the installed `meta-ads` skill as the authoritative acquisition and interpretation layer before asking for advertising metrics. If it is unavailable, record that source status and continue without a direct Meta integration or alternate transport.
+- Normalize acquired evidence into the canonical record, not into the public case. For Meta, keep its Evidence Package and any raw artifacts private and local, then import only traceable source records, metrics, observations, and limitations.
 - Normalize units, currencies, periods, labels, and source scopes. Keep raw source references intact.
-- Classify each material statement as `FACT`, `CALCULATED`, `INFERENCE`, `USER_CLAIM`, or `UNKNOWN`. A calculation records its formula and input metric IDs.
+- Classify each material statement as `FACT`, `OBSERVATION`, `CALCULATED`, `INFERENCE`, `USER_CLAIM`, or `UNKNOWN`. A calculation records its formula and input metric IDs.
 - Ask only for high-value missing information that an available source cannot answer. Ask in small, adaptive batches and give a direct skip path.
 - Store an unanswered field as `unknown`, `unavailable`, `not_applicable`, `intentionally_omitted`, or `private`. Do not fill it from plausibility.
 - When two sources disagree on a material metric, register an `unresolved_conflict` and stop that metric from becoming a public fact. Ask the user to resolve it or publish both scopes with an attribution note.
@@ -57,4 +58,4 @@ For the current `smr-web`, output only the public JSON shape documented in [the 
 - `assets/case.json`: a private-working-record template.
 - `assets/public-case.json`: a reviewable public projection template for the current `smr-web` contract.
 - `scripts/validate-case-record.mjs`: validates record structure, evidence references, metric conflicts, and an optional public projection.
-
+- `scripts/test-validator.mjs`: exercises the Meta source and publication guardrails without contacting Meta.

@@ -6,7 +6,17 @@
   "sources": [
     { "id": "client-brief", "type": "user" },
     { "id": "work-log", "type": "user" },
-    { "id": "meta-q1", "type": "meta_mcp" }
+    {
+      "id": "meta-q1",
+      "type": "meta_mcp",
+      "scope": {
+        "project": "validator-fixture",
+        "account": "private-account-id",
+        "from": "2026-01-01",
+        "to": "2026-03-31"
+      },
+      "evidence": { "package_path": "evidence/meta/meta-q1.json" }
+    }
   ],
   "metrics": [
     {
@@ -17,8 +27,13 @@
       "period": { "from": "2026-01-01", "to": "2026-03-31" },
       "classification": "FACT",
       "source_ids": ["meta-q1"],
+      "source_scope": "Meta Ads reported purchases",
       "verified": true,
-      "visibility": "public"
+      "visibility": "public",
+      "meta_evidence": {
+        "reported_field": "cost_per_result",
+        "result_spec": { "metric_status": "available", "result_type": "purchase" }
+      }
     }
   ],
   "public_case": {

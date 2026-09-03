@@ -4,7 +4,7 @@
 
 First create a coverage map: selected modules × facts already known × source reliability × privacy. Ask only one compact batch of unanswered, decision-relevant questions. Good early questions usually concern business context, prior state, objectives, decision rationale, changes outside ads, desired disclosure, and source discrepancies.
 
-For Meta data, first confirm account and reporting period, collect campaigns/ad sets/ads and available period breakdowns, then summarize: reported results, salient changes, and questions the export cannot answer. Do not re-ask reported spend, reach, purchases, leads, CPA/CPL, CTR, CPC, dates, campaigns, ad sets, or creatives.
+For Meta data, run the [selection gate](meta-ads-integration.md#selection-gate) before the interview: the user selects the project, account where relevant, exact reporting period(s), and campaigns from the compact Meta-provided lists. Then delegate acquisition to `meta-ads`, normalize the selected evidence, and summarize what it cannot know. Do not re-ask reported spend, reach, purchases, leads, CPA/CPL, CTR, CPC, dates, campaigns, ad sets, or creatives. Ask only whether the selected scope is the right business scope when that has not already been decided.
 
 Every question may be answered, skipped, made private, marked not applicable, or removed from the case. If the user supplies a question, add it to the coverage map and ask it only if its answer is not already available.
 

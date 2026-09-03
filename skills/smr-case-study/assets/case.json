@@ -9,7 +9,10 @@
     "missing": [],
     "skipped": [],
     "needs_verification": [],
-    "unresolved_conflicts": []
+    "unresolved_conflicts": [],
+    "source_status": {
+      "meta_ads": { "status": "not_checked", "reason": null, "checked_at": null }
+    }
   },
   "identity": {
     "client_name": { "value": null, "status": "unknown", "visibility": "private" },
@@ -21,7 +24,16 @@
     "modules": {},
     "metrics": { "include": [] },
     "privacy": {},
-    "interview": { "excluded_topics": [], "custom_questions": [] }
+    "interview": { "excluded_topics": [], "custom_questions": [] },
+    "sources": {
+      "meta_ads": {
+        "mode": "auto",
+        "depth": "standard",
+        "inspect": { "creatives": "auto", "targeting": "auto" },
+        "public": { "campaign_names": false },
+        "selection": { "project": null, "account": null, "periods": [], "campaigns": [] }
+      }
+    }
   },
   "sources": [],
   "metrics": [],

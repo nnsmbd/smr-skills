@@ -11,7 +11,15 @@ Start from `assets/case.json`. New fields are allowed when they are evidence-bea
   "id": "meta-2026-q1",
   "type": "meta_mcp",
   "label": "Meta Ads account export, Q1 2026",
-  "scope": { "account": "redacted-or-approved-id", "from": "2026-01-01", "to": "2026-03-31" },
+  "scope": {
+    "project": "boxette",
+    "account": "private-account-id",
+    "from": "2026-01-01",
+    "to": "2026-03-31",
+    "currency": "USD",
+    "timezone": { "value": "Asia/Tashkent", "status": "available" }
+  },
+  "evidence": { "package_path": "evidence/meta/meta-2026-q1.json" },
   "captured_at": "2026-04-01",
   "visibility": "private",
   "verified": true,
@@ -20,6 +28,8 @@ Start from `assets/case.json`. New fields are allowed when they are evidence-bea
 ```
 
 `type` may be `meta_mcp`, `spreadsheet`, `crm`, `shopify`, `screenshot`, `user`, `calculated`, or another truthful source type. A source reference is an ID, path, URL, or stable description; never paste secrets or raw credentials.
+
+A `meta_mcp` source is an acquisition produced by the installed `meta-ads` adapter and must link its private Meta Evidence Package. Its scope keeps project, account, exact dates, currency, and timezone status. The source remains private by default; individual metrics decide their own visibility.
 
 ## Metric
 
@@ -33,13 +43,19 @@ Start from `assets/case.json`. New fields are allowed when they are evidence-bea
   "classification": "FACT",
   "source_ids": ["meta-2026-q1"],
   "source_scope": "Meta Ads reported purchases",
+  "meta_evidence": {
+    "reported_field": "cost_per_result",
+    "result_spec": { "metric_status": "available", "result_type": "purchase", "result_accuracy": "exact" }
+  },
   "verified": true,
   "visibility": "public",
   "notes": "Platform-reported, not Shopify orders."
 }
 ```
 
-`classification` is one of `FACT`, `CALCULATED`, `INFERENCE`, `USER_CLAIM`, or `UNKNOWN`. A `CALCULATED` metric also contains `calculation: { "formula": "spend / purchases", "input_metric_ids": ["…"] }`. A public metric needs a value, period or a clearly stated cumulative scope, source trace, non-private visibility, and no unresolved conflict.
+`classification` is one of `FACT`, `OBSERVATION`, `CALCULATED`, `INFERENCE`, `USER_CLAIM`, or `UNKNOWN`. A `CALCULATED` metric also contains `calculation: { "formula": "spend / purchases", "input_metric_ids": ["…"] }`. A public metric needs a value, period or a clearly stated cumulative scope, source trace, non-private visibility, and no unresolved conflict.
+
+A public `meta_mcp` metric additionally records `meta_evidence.reported_field`. When that field is Meta's typed `results` or `cost_per_result`, retain its `result_spec` and require `metric_status: available`; delivery fields such as `spend`, `ctr`, or `purchases` remain separately labeled fields, not replacements for an unavailable primary result.
 
 ## Claims and reasoning
 
@@ -50,6 +66,8 @@ For a causal claim, record the causal basis separately: comparison, test design,
 ## Progress and conflicts
 
 Use `workflow.missing` for fields worth asking, `skipped` for user-skipped questions, `needs_verification` for an identified but unverified claim, and `unresolved_conflicts` for incompatible material values. A conflict object includes the metric or claim, competing evidence IDs, their scopes, and a user resolution or an attribution note. The validator rejects a public metric that names an unresolved conflict.
+
+`workflow.source_status` records each adapter independently. For Meta Ads, use `not_checked`, `disabled`, `unavailable`, `not_found`, `needs_selection`, `resolved`, `acquired`, or `limited`, with a reason and check time. In `case_config.sources.meta_ads`, retain the user preference (`mode`, depth, diagnostic opt-ins, and public campaign-name preference) separately from `selection`: selected project, account, one or more exact date periods with a role, and campaigns. Read [the Meta integration contract](meta-ads-integration.md) before filling either object.
 
 ## Public projection
 
