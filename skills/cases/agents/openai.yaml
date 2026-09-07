@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cases"
+  short_description: "Create verified performance-marketing cases for SMR"
+  default_prompt: "Use $cases to build a factual SMR performance-marketing case from my available sources."

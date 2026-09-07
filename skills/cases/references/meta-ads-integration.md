@@ -1,6 +1,6 @@
 # Meta Ads integration contract
 
-`smr-case-study` orchestrates a case. `meta-ads` owns Meta Ads project resolution, authentication/profile routing, data acquisition, objective/intent and ResultSpec interpretation, inspection, and Meta-specific reporting limitations. Do not copy those rules into this skill or use any direct Meta API path.
+`cases` orchestrates a case. `meta-ads` owns Meta Ads project resolution, authentication/profile routing, data acquisition, objective/intent and ResultSpec interpretation, inspection, and Meta-specific reporting limitations. Do not copy those rules into this skill or use any direct Meta API path.
 
 ## Source discovery
 

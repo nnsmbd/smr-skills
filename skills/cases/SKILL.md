@@ -1,9 +1,9 @@
 ---
-name: smr-case-study
+name: cases
 description: Build, restore, verify, or publish an SMR performance-marketing case study from Meta Ads, CRM, Shopify, spreadsheets, screenshots, and user evidence. Use for SMR / bysmr.uz case studies, adaptive case briefs, canonical case records, source conflicts, and publishing a verified case to smr-web; not for generic marketing copy without a case-evidence workflow.
 ---
 
-# SMR Case Study
+# Cases
 
 Create a factual case record first, then make a deliberately smaller public case from it. The public page is a communication choice; it is never the source of truth.
 

@@ -17,7 +17,7 @@ function clone(value) {
 }
 
 function validate(record) {
-  const directory = mkdtempSync(join(tmpdir(), 'smr-case-study-validator-'));
+  const directory = mkdtempSync(join(tmpdir(), 'cases-validator-'));
   const file = join(directory, 'case.json');
   try {
     writeFileSync(file, JSON.stringify(record));
