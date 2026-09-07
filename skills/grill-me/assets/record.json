@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "decision-slug",
+  "status": "in_progress",
+  "created_at": "YYYY-MM-DD",
+  "updated_at": "YYYY-MM-DD",
+  "decision": {
+    "statement": null,
+    "owner": null,
+    "deadline": null,
+    "desired_outcome": null,
+    "constraints": []
+  },
+  "facts": [],
+  "assumptions": [],
+  "alternatives": [],
+  "decision_tree": [],
+  "frontier": [],
+  "risks": [],
+  "open_questions": [],
+  "accepted_risks": [],
+  "decision_log": [],
+  "next_actions": [],
+  "memo": null
+}
