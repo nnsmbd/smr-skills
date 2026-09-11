@@ -22,6 +22,10 @@ Use calculated values only with a recorded formula and inputs. If Meta and Shopi
 
 ## Draft and review
 
+Read [public narrative](public-narrative.md) before drafting a public case: it holds the default `standard` structure, the separation of work from results, the Narrative Value Gate, compactness rules, the narrator choice, and the communication gate.
+
+Do not re-ask anything the record already answers, and do not re-open a decision the user has already made about structure, privacy, or metrics. When delegating the editorial pass to `writer`, send the compact editorial packet described in public narrative — never a raw Meta dump — and run the factual pass again on what comes back.
+
 Write in Russian unless the user chooses another language. Lead with the result that can be defended, then make the decision process legible. Use concrete nouns, quantities, periods, sources, and caveats when material. The desired tone is analytical and plain-spoken.
 
 Avoid generic agency claims and intensity language. Instead of asserting that a decision “caused” a result, state what was observed and what else may have affected it unless the record supports causation.

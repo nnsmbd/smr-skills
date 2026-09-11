@@ -40,6 +40,10 @@ For each substantive public claim, retain a trace to its canonical evidence. Pre
 
 Read [interview, verification, and drafting](references/interview-verification-drafting.md) before interviewing, checking, drafting, or reviewing. The style is specific, economical, and honest: show decisions and evidence rather than agency boilerplate or superlatives.
 
+Read [public narrative](references/public-narrative.md) before writing the public case. Verification decides what may be said; that file decides what is worth saying: the default `standard` structure, the separation of `что сделали` from `что получилось лучше` and `что сработало плохо`, the Narrative Value Gate, the rule that a confirmed result is stated plainly, compactness, and the narrator choice between `я` and `мы`.
+
+When an editorial pass would help, hand `writer` the compact editorial packet described there — approved structure, locked facts and metrics, allowed interpretations, forbidden claims, privacy rules, material caveats, section notes, and the current draft. `writer` returns wording only; re-run the factual and publication review on what comes back. `cases` stays the source of truth, and `writer` is not a required dependency.
+
 If an enabled module lacks substance, offer: collect evidence, reduce it to a short factual note, or omit it. Never write filler to preserve a preset.
 
 ## Publish
@@ -48,14 +52,17 @@ Publication is a separate approval gate. Before changing a site:
 
 1. resolve or explicitly annotate all public conflicts and attribution gaps;
 2. present the public projection, selected metrics, private omissions, and unverified claims for confirmation;
-3. validate the canonical record and projection with `scripts/validate-case-record.mjs`;
-4. only after approval, update the target repository using its established data contract and run its relevant checks.
+3. run the communication gate in [public narrative](references/public-narrative.md) next to the factual check: is the real scope of work visible, are actions separated from results, does every public number do a job, is the text overloaded with caveats, was a material limitation dropped, is a `standard` case too long;
+4. validate the canonical record and projection with `scripts/validate-case-record.mjs`;
+5. only after approval, update the target repository using its established data contract and run its relevant checks.
 
-For the current `smr-web`, output only the public JSON shape documented in [the publication contract](references/smr-web-contract.md). Do not add canonical fields or raw evidence to `data/cases.json` unless that repository is separately redesigned and approved.
+For the current `smr-web`, output only the public JSON shape documented in [the publication contract](references/smr-web-contract.md), including `article` for a full case and the required `fullStory` projection for cards. Do not add canonical fields or raw evidence to `data/cases.json` unless that repository is separately redesigned and approved. When updating an already published case, read its current runtime state first: admin edits are not overwritten by deploys, so the seed file in the repository may already be behind.
+
+After a published case, run the retrospective described in [public narrative](references/public-narrative.md) and split findings into generalizable skill changes and case-specific notes.
 
 ## Bundled resources
 
 - `assets/case.json`: a private-working-record template.
-- `assets/public-case.json`: a reviewable public projection template for the current `smr-web` contract.
+- `assets/public-case.json`: a reviewable public projection template for the current `smr-web` contract, with the default `standard` section set as an example.
 - `scripts/validate-case-record.mjs`: validates record structure, evidence references, metric conflicts, and an optional public projection.
 - `scripts/test-validator.mjs`: exercises the Meta source and publication guardrails without contacting Meta.

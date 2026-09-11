@@ -67,25 +67,60 @@ For a causal claim, record the causal basis separately: comparison, test design,
 
 Use `workflow.missing` for fields worth asking, `skipped` for user-skipped questions, `needs_verification` for an identified but unverified claim, and `unresolved_conflicts` for incompatible material values. A conflict object includes the metric or claim, competing evidence IDs, their scopes, and a user resolution or an attribution note. The validator rejects a public metric that names an unresolved conflict.
 
+A user correction never overwrites source evidence. Record it as its own metric with `classification: USER_CLAIM`, its own source (`type: "user"`), its own scope, and its own visibility; keep the external metric it disagrees with exactly as acquired. Then register the conflict and let the user decide which canonical metric the public case may use:
+
+```json
+{
+  "metric_ids": ["meta-purchase-cpa", "owner-aggregate-cpa"],
+  "evidence_ids": ["meta-2026-q1", "owner-confirmation"],
+  "note": "Owner aggregate covers the whole engagement; the Meta metric covers the compatible purchase-only scope.",
+  "resolution": {
+    "decision": "publish_selected_metric",
+    "selected_metric_id": "owner-aggregate-cpa",
+    "approved_by": "owner",
+    "approved_at": "2026-09-11",
+    "note": "Published figure follows the owner-confirmed aggregate; source evidence is retained for re-reconciliation."
+  }
+}
+```
+
+`decision` is `publish_selected_metric` or `withhold_from_public`, and both need `approved_by` and `approved_at`. The resolution only states which canonical metric may appear publicly: the unselected side stays in the record and stays unpublishable. A public `USER_CLAIM` metric still needs provenance — at least one source — and stays subject to the same visibility and verification rules.
+
+A resolution is a publication decision, not a factual reconciliation. The entry stays in `workflow.unresolved_conflicts`, every competing Meta/CRM/user metric stays in the record with its own scope, and the discrepancy stays open until someone actually re-reconciles it as a separate task. Do not delete, merge, or overwrite the losing metric, and do not describe the conflict as closed in a status summary.
+
 `workflow.source_status` records each adapter independently. For Meta Ads, use `not_checked`, `disabled`, `unavailable`, `not_found`, `needs_selection`, `resolved`, `acquired`, or `limited`, with a reason and check time. In `case_config.sources.meta_ads`, retain the user preference (`mode`, depth, diagnostic opt-ins, and public campaign-name preference) separately from `selection`: selected project, account, one or more exact date periods with a role, and campaigns. Read [the Meta integration contract](meta-ads-integration.md) before filling either object.
 
 ## Public projection
 
-`public_case` is a reviewable object in the current `smr-web` shape plus `evidence_map`:
+`public_case` is a reviewable object in the current `smr-web` shape plus its evidence maps. Read [the publication contract](smr-web-contract.md) for the field list and limits.
 
 ```json
 {
-  "case": { "slug": "…", "title": "…", "niche": "…", "period": "…", "metrics": [], "summary": "…", "fullStory": {} },
+  "case": {
+    "slug": "…",
+    "title": "…",
+    "niche": "…",
+    "period": "…",
+    "metrics": [],
+    "summary": "…",
+    "fullStory": { "task": "…", "approach": "…", "result": "…" },
+    "article": { "heading": "…", "result": "…", "highlight": "…", "note": "…", "sections": [] }
+  },
   "metric_evidence": { "CPA": ["meta-q1-cpa"] },
   "claim_evidence": {
     "title": ["meta-q1-cpa"],
     "summary": ["meta-q1-cpa"],
     "fullStory.task": ["client-brief"],
     "fullStory.approach": ["work-log"],
-    "fullStory.result": ["meta-q1-cpa"]
+    "fullStory.result": ["meta-q1-cpa"],
+    "article.result": ["meta-q1-purchases"],
+    "article.highlight": ["meta-q1-cpa"],
+    "article.sections.5": ["meta-q1-cpa"]
   },
   "approval": { "status": "pending", "approved_at": null }
 }
 ```
 
-The evidence map is never copied into the website file. A projected metric must point to public, verified, non-conflicting canonical metrics; each public text claim must point to at least one source or metric.
+The evidence maps are never copied into the website file. A projected metric must point to public, verified, non-conflicting canonical metrics. Quantified public text needs a trace: the validator requires `claim_evidence` for `title`, `summary`, each `fullStory` field, `article.result` and `article.highlight` when they contain numbers, and every article section whose paragraphs contain numbers. Editorial links and transitions are not separate factual claims and need no mapping — but any concrete action, date, result, or causal statement still has to be traceable in the record even where the validator cannot see it.
+
+`article` is optional in the schema and `fullStory` is required in every case; write `fullStory` as a compressed projection for the cards, not as a second story.

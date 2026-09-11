@@ -61,6 +61,10 @@ Do not force every dimension to appear. A serious sales page may need little sel
 
 Do not claim the result will convert. A rubric detects obvious weaknesses; only real tests and business outcomes measure conversion.
 
+## Case-study gate
+
+For the `case-study` subtype, also run the silent gate in [case-study.md](case-study.md): the reader's six questions, scope visibility, leaked internal details, locked facts and metrics, causal strength, narrator, agency boilerplate, and a conclusion that only repeats the numbers.
+
 ## AI-slop pass
 
 Delete or rewrite generic phrases unless the surrounding evidence makes them necessary:

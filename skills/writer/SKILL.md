@@ -1,6 +1,6 @@
 ---
 name: writer
-description: "Write, rewrite, critique, and plan Russian-language copy in Samir's voice with adaptive briefing across two modes: blog content and sales copy. Use for guided copy briefs, Telegram or blog posts, build-in-public updates, reflections, practical explainers, channel plans, digests, landing pages, service pages, offers, ads, headlines, CTAs, sales rewrites, and voice-aligned copy review."
+description: "Write, rewrite, critique, and plan Russian-language copy in Samir's voice with adaptive briefing across two modes: blog content and sales copy. Use for guided copy briefs, Telegram or blog posts, build-in-public updates, reflections, practical explainers, channel plans, digests, landing pages, service pages, offers, ads, headlines, CTAs, sales rewrites, case studies edited from a verified case record, and voice-aligned copy review."
 ---
 
 # Writer
@@ -13,13 +13,13 @@ Write in Russian by default. Preserve Samir's recognizable voice while adapting 
 2. Determine the mode:
    - use `blog` for personal-channel posts, reflections, explainers, build-in-public updates, weekly logs, channel plans, and digests;
    - use `sales` for commercial pages, offers, ads, product or service descriptions, emails, headlines, CTAs, and conversion-oriented review.
-3. Infer the mode from the requested deliverable when it is clear. Ask only when the choice materially changes the result.
+3. Infer the mode from the requested deliverable when it is clear. Ask only when the choice materially changes the result. Within `sales`, treat a case study as the `case-study` subtype: an SMR case, a proof story built from a verified record, or an editorial packet handed over by the `cases` skill. Read [references/case-study.md](references/case-study.md) for it, and skip the ordinary sales intake when the packet already answers the brief.
 4. Determine the intake depth: `quick`, `brief`, or `audit`. Honor an explicit choice; otherwise follow [references/intake.md](references/intake.md).
 5. Read [references/intake.md](references/intake.md), extract every answer already present in the conversation or supplied materials, and resolve the question gate before drafting. If questions are required, ask them in one compact batch and stop until the user answers.
 6. Read [references/voice-core.md](references/voice-core.md) for every writing or rewriting task.
 7. Read only the mode-specific material needed:
    - `blog`: [references/blog.md](references/blog.md), then [references/blog-examples.md](references/blog-examples.md) when examples would improve fidelity;
-   - `sales`: [references/sales.md](references/sales.md), then [references/sales-reference-patterns.md](references/sales-reference-patterns.md) when choosing a page mechanism or reviewing a reference.
+   - `sales`: [references/sales.md](references/sales.md), then [references/sales-reference-patterns.md](references/sales-reference-patterns.md) when choosing a page mechanism or reviewing a reference, and [references/case-study.md](references/case-study.md) for the `case-study` subtype.
 8. Read [references/quality-checks.md](references/quality-checks.md) before finalizing or reviewing any deliverable.
 
 ## Run the intake

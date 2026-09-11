@@ -15,6 +15,12 @@ Never ask the user to repeat:
 
 If the user says `не знаю`, `предложи сам`, or equivalent, offer a neutral recommendation or two to three concrete options. Do not disguise a proposal as a confirmed fact.
 
+## Accept a brief supplied by another skill
+
+When an upstream skill supplies a brief — for example the editorial packet from `cases` — treat it as the answered intake. Do not run the mode questionnaire again, and never ask the user a second time about a project they have already described.
+
+Ask only when the packet contradicts itself or the conversation, when something is missing without which the text cannot be written correctly, or when an editorial fork remains that cannot be resolved safely alone. Facts in the packet are locked: request a correction from the supplying skill instead of editing them.
+
 ## Select intake depth
 
 Honor an explicit depth:

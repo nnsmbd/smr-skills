@@ -31,6 +31,36 @@ const metaSourceStates = new Set([
   'acquired',
   'limited',
 ]);
+const conflictDecisions = new Set(['publish_selected_metric', 'withhold_from_public']);
+
+// Mirrors the current smr-web `caseSchema` limits; see references/smr-web-contract.md.
+const limits = {
+  title: 220,
+  niche: 120,
+  period: 120,
+  summary: 500,
+  metricValue: 80,
+  metricLabel: 80,
+  story: 5000,
+  heading: 220,
+  result: 220,
+  highlight: 220,
+  note: 500,
+  sectionTitle: 220,
+  paragraph: 5000,
+  screenshotSrc: 500,
+  screenshotTitle: 220,
+  screenshotDescription: 1000,
+};
+const localScreenshotSrc = /^\/(?!\/)[a-zA-Z0-9/_\-.]+$/;
+const httpsScreenshotSrc = /^https:\/\//;
+const digit = /\d/;
+// Deterministic internal-leak guards only: platform object IDs and technical field
+// names. Platform naming and campaign titles are an editorial/privacy rule, not a
+// structural invariant — see references/public-narrative.md.
+const internalIdPattern = /(?:^|\D)(act_\d+|\d{15,})(?:\D|$)/;
+const internalFieldPattern =
+  /\b(campaign_id|adset_id|ad_id|account_id|result_spec|cost_per_result|metric_status|promoted_object|optimization_goal|campaign_intent|intent_confidence)\b/i;
 
 function fail(message) {
   errors.push(message);
@@ -52,16 +82,97 @@ function hasExactPeriod(value) {
   return isText(value?.from) && isText(value?.to);
 }
 
-function assertPublicCase(value, prefix = 'public case') {
-  if (!value || typeof value !== 'object') {
-    fail(`${prefix} must be an object.`);
+function assertText(value, path, max) {
+  if (!isText(value)) {
+    fail(`${path} must be non-empty text.`);
+    return false;
+  }
+  if (max && value.trim().length > max) {
+    fail(`${path} must be ${max} characters or fewer for smr-web.`);
+    return false;
+  }
+  return true;
+}
+
+function assertArticle(article, texts, prefix) {
+  if (typeof article !== 'object' || article === null || Array.isArray(article)) {
+    fail(`${prefix}.article must be an object when present.`);
     return;
   }
-
-  for (const field of ['slug', 'title', 'niche', 'period', 'summary']) {
-    if (!isText(value[field])) fail(`${prefix}.${field} must be non-empty text.`);
+  assertText(article.heading, `${prefix}.article.heading`, limits.heading);
+  assertText(article.result, `${prefix}.article.result`, limits.result);
+  assertText(article.highlight, `${prefix}.article.highlight`, limits.highlight);
+  texts.push(
+    { path: `${prefix}.article.heading`, text: article.heading },
+    { path: `${prefix}.article.result`, text: article.result },
+    { path: `${prefix}.article.highlight`, text: article.highlight },
+  );
+  if (article.note !== undefined && article.note !== null) {
+    if (typeof article.note !== 'string' || article.note.length > limits.note) {
+      fail(`${prefix}.article.note must be text of ${limits.note} characters or fewer.`);
+    }
+    texts.push({ path: `${prefix}.article.note`, text: article.note });
   }
-  if (isText(value.slug) && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.slug)) {
+  if (!Array.isArray(article.sections) || article.sections.length < 1 || article.sections.length > 20) {
+    fail(`${prefix}.article.sections must contain 1–20 sections.`);
+    return;
+  }
+  article.sections.forEach((section, index) => {
+    const at = `${prefix}.article.sections[${index}]`;
+    if (typeof section !== 'object' || section === null) {
+      fail(`${at} must be an object.`);
+      return;
+    }
+    assertText(section.title, `${at}.title`, limits.sectionTitle);
+    texts.push({ path: `${at}.title`, text: section.title });
+    if (!Array.isArray(section.paragraphs) || section.paragraphs.length < 1 || section.paragraphs.length > 30) {
+      fail(`${at}.paragraphs must contain 1–30 paragraphs.`);
+    } else {
+      section.paragraphs.forEach((paragraph, position) => {
+        assertText(paragraph, `${at}.paragraphs[${position}]`, limits.paragraph);
+        texts.push({ path: `${at}.paragraphs[${position}]`, text: paragraph });
+      });
+    }
+    if (section.showMetrics !== undefined && typeof section.showMetrics !== 'boolean') {
+      fail(`${at}.showMetrics must be a boolean when present.`);
+    }
+    if (section.screenshot !== undefined && section.screenshot !== null) {
+      const shot = section.screenshot;
+      const src = shot?.src;
+      if (typeof src !== 'string' || src.length > limits.screenshotSrc || !(localScreenshotSrc.test(src) || httpsScreenshotSrc.test(src))) {
+        fail(`${at}.screenshot.src must be a /cases/... path or an HTTPS link.`);
+      }
+      assertText(shot?.title, `${at}.screenshot.title`, limits.screenshotTitle);
+      if (typeof shot?.description !== 'string' || shot.description.length > limits.screenshotDescription) {
+        fail(`${at}.screenshot.description must be text of ${limits.screenshotDescription} characters or fewer.`);
+      }
+      texts.push(
+        { path: `${at}.screenshot.title`, text: shot?.title },
+        { path: `${at}.screenshot.description`, text: shot?.description },
+      );
+    }
+  });
+}
+
+function assertPublicCase(value, prefix = 'public case') {
+  const texts = [];
+  if (!value || typeof value !== 'object') {
+    fail(`${prefix} must be an object.`);
+    return texts;
+  }
+
+  for (const [field, max] of [
+    ['title', limits.title],
+    ['niche', limits.niche],
+    ['period', limits.period],
+    ['summary', limits.summary],
+  ]) {
+    assertText(value[field], `${prefix}.${field}`, max);
+    texts.push({ path: `${prefix}.${field}`, text: value[field] });
+  }
+  if (!isText(value.slug)) {
+    fail(`${prefix}.slug must be non-empty text.`);
+  } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.slug)) {
     fail(`${prefix}.slug must contain lowercase letters, digits, and single hyphens only.`);
   }
   if (!Array.isArray(value.metrics) || value.metrics.length < 1 || value.metrics.length > 12) {
@@ -71,25 +182,81 @@ function assertPublicCase(value, prefix = 'public case') {
     if (primary.length !== 1) fail(`${prefix}.metrics must have exactly one primary metric.`);
     const labels = new Set();
     value.metrics.forEach((metric, index) => {
-      if (!isText(metric?.label) || !isText(metric?.value)) {
-        fail(`${prefix}.metrics[${index}] needs non-empty label and value.`);
-      }
+      assertText(metric?.label, `${prefix}.metrics[${index}].label`, limits.metricLabel);
+      assertText(metric?.value, `${prefix}.metrics[${index}].value`, limits.metricValue);
       if (labels.has(metric?.label)) fail(`${prefix}.metrics has duplicate label: ${metric?.label}.`);
       labels.add(metric?.label);
+      texts.push(
+        { path: `${prefix}.metrics[${index}].label`, text: metric?.label },
+        { path: `${prefix}.metrics[${index}].value`, text: metric?.value },
+      );
     });
   }
+  // `fullStory` stays required in production: the /cases index, the home preview,
+  // and the fallback detail page read it even when `article` is present.
   for (const field of ['task', 'approach', 'result']) {
-    if (!isText(value.fullStory?.[field])) {
-      fail(`${prefix}.fullStory.${field} must be non-empty text.`);
+    assertText(value.fullStory?.[field], `${prefix}.fullStory.${field}`, limits.story);
+    texts.push({ path: `${prefix}.fullStory.${field}`, text: value.fullStory?.[field] });
+  }
+  if (value.article !== undefined && value.article !== null) {
+    assertArticle(value.article, texts, prefix);
+  }
+  return texts;
+}
+
+function assertNoInternalLeak(texts, allowIds) {
+  for (const { path, text } of texts) {
+    if (typeof text !== 'string') continue;
+    if (!allowIds) {
+      const id = text.match(internalIdPattern);
+      if (id) fail(`${path} contains what looks like an internal platform ID: ${id[1]}.`);
     }
+    const field = text.match(internalFieldPattern);
+    if (field) fail(`${path} contains an internal technical field name: ${field[1]}.`);
   }
 }
 
-function hasConflict(metricId, conflicts) {
-  return conflicts.some((conflict) => {
-    if (typeof conflict === 'string') return conflict === metricId;
-    return conflict?.metric_id === metricId || conflict?.claim_id === metricId;
+function requiredClaimKeys(publicCase) {
+  const keys = ['title', 'summary', 'fullStory.task', 'fullStory.approach', 'fullStory.result'];
+  const article = publicCase?.article;
+  if (!article || typeof article !== 'object') return keys;
+  if (digit.test(article.result ?? '')) keys.push('article.result');
+  if (digit.test(article.highlight ?? '')) keys.push('article.highlight');
+  const sections = Array.isArray(article.sections) ? article.sections : [];
+  sections.forEach((section, index) => {
+    const body = (Array.isArray(section?.paragraphs) ? section.paragraphs : [])
+      .filter((paragraph) => typeof paragraph === 'string')
+      .join(' ');
+    // Only quantified sections need their own evidence mapping. Editorial links and
+    // transitions are not separate factual claims.
+    if (digit.test(body)) keys.push(`article.sections.${index}`);
   });
+  return keys;
+}
+
+function conflictFor(metricId, conflicts) {
+  return conflicts.find((conflict) => {
+    if (typeof conflict === 'string') return conflict === metricId;
+    if (conflict?.metric_id === metricId || conflict?.claim_id === metricId) return true;
+    return Array.isArray(conflict?.metric_ids) && conflict.metric_ids.includes(metricId);
+  });
+}
+
+/** Returns a blocking reason, or null when this metric may be published. */
+function conflictBlocks(conflict, metricId) {
+  if (!conflict) return null;
+  const resolution = typeof conflict === 'string' ? null : conflict.resolution;
+  if (!resolution) return 'unresolved conflict';
+  if (!conflictDecisions.has(resolution.decision)) return 'conflict resolution has an unsupported decision';
+  if (!isText(resolution.approved_by) || !isText(resolution.approved_at)) {
+    return 'conflict resolution needs approved_by and approved_at';
+  }
+  if (resolution.decision === 'withhold_from_public') return 'conflict was resolved as withheld from public';
+  if (!isText(resolution.selected_metric_id)) return 'conflict resolution needs selected_metric_id';
+  if (resolution.selected_metric_id !== metricId) {
+    return `conflict resolution selected another metric: ${resolution.selected_metric_id}`;
+  }
+  return null;
 }
 
 const args = process.argv.slice(2);
@@ -187,12 +354,31 @@ for (const [index, metric] of (record.metrics ?? []).entries()) {
   }
 }
 
+const conflicts = record.workflow?.unresolved_conflicts ?? [];
+conflicts.forEach((conflict, index) => {
+  if (typeof conflict === 'string' || !conflict?.resolution) return;
+  const resolution = conflict.resolution;
+  const at = `workflow.unresolved_conflicts[${index}].resolution`;
+  if (!conflictDecisions.has(resolution.decision)) {
+    fail(`${at}.decision must be publish_selected_metric or withhold_from_public.`);
+  }
+  if (!isText(resolution.approved_by) || !isText(resolution.approved_at)) {
+    fail(`${at} needs approved_by and approved_at.`);
+  }
+  if (resolution.decision === 'publish_selected_metric') {
+    if (!isText(resolution.selected_metric_id)) fail(`${at} needs selected_metric_id.`);
+    else if (!metricIds.has(resolution.selected_metric_id)) {
+      fail(`${at} references unknown metric: ${resolution.selected_metric_id}.`);
+    }
+  }
+});
+
 const projection = record.public_case;
 if (projection !== null && projection !== undefined) {
   const publicCase = projection.case ?? projection;
-  assertPublicCase(publicCase);
+  const publicTexts = assertPublicCase(publicCase);
+  assertNoInternalLeak(publicTexts, projection.allow_internal_ids === true);
   const evidence = projection.metric_evidence ?? {};
-  const conflicts = record.workflow?.unresolved_conflicts ?? [];
   for (const metric of publicCase?.metrics ?? []) {
     const ids = evidence[metric.label] ?? [];
     if (!Array.isArray(ids) || ids.length === 0) {
@@ -201,7 +387,8 @@ if (projection !== null && projection !== undefined) {
     }
     for (const id of ids) {
       if (!metricIds.has(id)) fail(`Public metric ${metric.label} references unknown metric: ${id}.`);
-      if (hasConflict(id, conflicts)) fail(`Public metric ${metric.label} has an unresolved conflict: ${id}.`);
+      const blocking = conflictBlocks(conflictFor(id, conflicts), id);
+      if (blocking) fail(`Public metric ${metric.label} has an ${blocking}: ${id}.`);
       const canonicalMetric = record.metrics.find((candidate) => candidate.id === id);
       if (canonicalMetric?.visibility !== 'public') {
         fail(`Public metric ${metric.label} is not marked public: ${id}.`);
@@ -211,6 +398,9 @@ if (projection !== null && projection !== undefined) {
       }
       if (canonicalMetric?.classification === 'UNKNOWN') {
         fail(`Public metric ${metric.label} cannot be UNKNOWN: ${id}.`);
+      }
+      if (canonicalMetric?.classification === 'USER_CLAIM' && !(canonicalMetric?.source_ids ?? []).length) {
+        fail(`Public metric ${metric.label} is a user claim without provenance: ${id}.`);
       }
       if (!canonicalMetric?.period && !isText(canonicalMetric?.source_scope)) {
         fail(`Public metric ${metric.label} needs a period or stated source scope: ${id}.`);
@@ -232,7 +422,7 @@ if (projection !== null && projection !== undefined) {
     }
   }
   const claimEvidence = projection.claim_evidence ?? {};
-  for (const claim of ['title', 'summary', 'fullStory.task', 'fullStory.approach', 'fullStory.result']) {
+  for (const claim of requiredClaimKeys(publicCase)) {
     const ids = claimEvidence[claim] ?? [];
     if (!Array.isArray(ids) || ids.length === 0) {
       fail(`Public claim ${claim} needs claim_evidence.`);
