@@ -26,6 +26,7 @@ For a new project, copy `assets/project.yaml` to `.site-builder/project.yaml` an
 
 - Explore discoverable facts before asking the user.
 - Ask at most three short, high-impact questions per round.
+- Pressure-test contested brief decisions in the same rounds, not in a separate interview; read `references/brief-grill.md` and use a compatible `grill-me` skill when installed without making it a hard dependency.
 - Prefer the environment's native structured question UI when available; otherwise ask concise numbered questions in chat.
 - Offer a recommended option first and explain the consequence of each real alternative.
 - Do not ask a question already answered in the conversation or project state.
@@ -134,6 +135,7 @@ Use capability descriptions rather than hard-coded tool aliases. In Codex and Cl
 
 - `references/site-profiles.md`: service versus product differences, action adapters, and state migration.
 - `references/measurement.md`: event plan, attribution, consent, event verification, and experiments backlog.
+- `references/brief-grill.md`: pressure-testing contested brief decisions with or without a grill-me skill.
 - `assets/project.yaml`: public project-state template (schema version 2).
 - `assets/copy-brief.md`: copy brief packet for delegating wording to a compatible writer skill.
 - `assets/design-tokens.css`: design-system token template with contrast pairs, breakpoints, and motion tokens.

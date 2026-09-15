@@ -25,7 +25,7 @@ State which facts are verified, inferred, stale, or missing. Do not treat a prev
 
 ## Question sequence
 
-Ask only missing decisions, in rounds of no more than three. When `site_type` is `product`, a product-specific question replaces the service-specific question it corresponds to instead of adding a fourth question to the round; ask only what the inspection step could not already answer.
+Ask only missing decisions, in rounds of no more than three. Pressure-test contested decisions inside the same rounds as described in `references/brief-grill.md`, using a compatible `grill-me` skill when installed; never run a second questionnaire alongside discovery. When `site_type` is `product`, a product-specific question replaces the service-specific question it corresponds to instead of adding a fourth question to the round; ask only what the inspection step could not already answer.
 
 ### Round A: outcome
 
@@ -76,7 +76,8 @@ The brief gate is ready only when these fields are explicit:
 - languages and regions;
 - constraints and non-goals;
 - measurable success signals and an analytics event plan (see `references/measurement.md`);
-- content and approval owners (name every owner when there is more than one).
+- content and approval owners (name every owner when there is more than one);
+- a decision memo for contested decisions, with rejected alternatives, material assumptions, and accepted risks (`brief.decision_memo_path`).
 
 Summarize the brief in plain language and ask for approval. Do not use implementation jargon in the business summary.
 

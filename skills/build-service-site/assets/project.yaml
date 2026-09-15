@@ -40,6 +40,7 @@ brief:
   constraints: []
   non_goals: []
   content_owners: []
+  decision_memo_path: ""
 
 content:
   research_path: ""
@@ -124,6 +125,7 @@ github:
 
 integrations:
   writer_available: false
+  grill_me_available: false
 
 approvals:
   brief:

@@ -58,6 +58,11 @@
 - Use for: a compatible manager skill, if installed — optional GitHub issue lookup and synchronization, parent hierarchy, Project placement, work records, and commit links.
 - Boundary: `build-service-site` must still work without manager. Use the fallback in `github-workflow.md` when manager is absent or incompatible.
 
+### Grill-me skill
+
+- Use for: a compatible grill-me skill, if installed — pressure-testing contested brief decisions through a decision tree, explicit assumptions, and a decision memo (see `brief-grill.md`).
+- Boundary: `build-service-site` keeps the question budget, project state, and approval gates; grilling runs inside discovery rounds, not as a separate questionnaire. Without grill-me, apply the built-in procedure in `brief-grill.md`.
+
 ### Writer skill
 
 - Use for: a compatible writer skill, if installed — optional delegation of copy drafting once the copy brief packet is ready (see `assets/copy-brief.md` and `conversion-copy.md`).
