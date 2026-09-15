@@ -44,6 +44,9 @@ way to evaluate the skill and does not require plugin packaging.
 - `deploy-gate.md` — a project at the deploy phase, checking the skill never
   deploys to production without explicit authorization for that specific
   action.
+- `brief-grill.md` — contested audience and primary-action decisions,
+  run with and without a grill-me skill, checking one merged interview,
+  the three-question limit, and the decision memo in project state.
 - `external-design.md` — a supplied external design export plus brand fonts
   with an instruction to "build it," checking `design.source: external`
   replaces the three-directions flow with token extraction, contrast
