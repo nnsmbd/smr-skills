@@ -34,6 +34,15 @@ For each reviewed site capture:
 9. Voice, jargon, specificity, and unsupported claims.
 10. Transferable principles, anti-patterns, and open hypotheses.
 
+For a `product` site, also capture:
+
+- pricing and trial model (free trial, freemium, demo call, paid only) and whether published tiers look final;
+- time-to-value and the onboarding promise — how fast a new user is claimed to reach value;
+- integrations shown and how prominently they are placed;
+- how the product itself is treated in the hero (real UI, stylized UI, video loop, interactive demo, or abstract visualization — see `references/site-profiles.md`);
+- alternatives beyond direct competitors, including doing the task manually and hiring an agency or freelancer;
+- whether a dedicated comparison page or section exists, and against whom.
+
 Separate a competitor's visible behavior from assumptions about its conversion performance. Popularity, awards, visual polish, and templates are not conversion proof.
 
 ## Reference-source roles
@@ -79,4 +88,4 @@ Produce:
 - messaging gaps and trust gaps;
 - design opportunities and risks;
 - a shortlist for three visual directions;
-- a post-launch experiment backlog kept separate from launch requirements.
+- a post-launch experiment backlog kept separate from launch requirements — carry it into the experiments file described in `references/measurement.md` at handoff.

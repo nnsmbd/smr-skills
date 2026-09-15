@@ -1,0 +1,100 @@
+/*
+ * Design tokens — the single source of truth for the project's visual system.
+ *
+ * Fill this file at the design gate, from the selected direction, the supplied external
+ * design, or the existing brand (design.source). Record its path in design.tokens_path.
+ * Components reference these variables; do not hard-code a value that has a token.
+ * Add a token before adding a second copy of any value.
+ *
+ * Contrast: scripts/check-contrast.mjs reads the color roles below (hex values only)
+ * and checks the pairs listed in `contrast-pairs`. Keep this comment block intact.
+ *
+ * contrast-pairs: fg/bg, muted/bg, fg/surface, muted/surface, accent-fg/accent, focus/bg
+ */
+
+:root {
+  /* Color roles. Name by role, never by hue. Values must be 6-digit hex. */
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f4;
+  --color-fg: #111111;
+  --color-muted: #57534e;
+  --color-border: #e7e5e4;
+  --color-accent: #1d4ed8;
+  --color-accent-hover: #1e40af;
+  --color-accent-fg: #ffffff;
+  --color-focus: #1d4ed8;
+  --color-danger: #b91c1c;
+  --color-success: #15803d;
+
+  /* Fonts. Record subsets (e.g. cyrillic), license, and loading strategy in design-decision.md. */
+  --font-display: system-ui, sans-serif;
+  --font-body: system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+
+  /* Type scale: fluid sizes with explicit minimum and maximum. */
+  --text-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+  --text-sm: clamp(0.875rem, 0.84rem + 0.18vw, 0.9375rem);
+  --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --text-lg: clamp(1.125rem, 1.06rem + 0.33vw, 1.25rem);
+  --text-xl: clamp(1.375rem, 1.24rem + 0.65vw, 1.75rem);
+  --text-2xl: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
+  --text-3xl: clamp(2.25rem, 1.8rem + 2.25vw, 3.75rem);
+  --leading-tight: 1.1;
+  --leading-normal: 1.5;
+  --tracking-display: -0.02em;
+
+  /* Spacing scale (rem). Section rhythm is derived from it, not invented per section. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --section-y: clamp(var(--space-12), 8vh, var(--space-24));
+  --container-max: 75rem;
+  --gutter: clamp(var(--space-4), 4vw, var(--space-8));
+
+  /* Radii and shadows */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 0.08);
+
+  /* Layout constants */
+  --header-h: 4rem;
+  --z-header: 50;
+  --z-overlay: 80;
+  --z-modal: 100;
+
+  /* Motion: the only durations and easings. Mirror them in JS from one module. */
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --reveal-distance: 16px;
+}
+
+/*
+ * Breakpoints cannot be CSS variables inside media queries. This is the only allowed set;
+ * mirror it in the framework config. Add a value only with a recorded reason.
+ *
+ * width:  --bp-sm 480px | --bp-md 768px | --bp-lg 1024px | --bp-xl 1280px | --bp-2xl 1536px
+ * height: --bp-h-sm (max-height: 720px) | --bp-h-md (max-height: 900px) | --bp-h-tall (min-height: 1100px)
+ * landscape phone: (orientation: landscape) and (max-height: 500px)
+ */
+
+/* Reduced motion: one global switch. Content must stay fully visible without animation. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --reveal-distance: 0px;
+  }
+}

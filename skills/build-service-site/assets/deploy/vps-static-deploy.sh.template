@@ -1,30 +1,25 @@
 #!/usr/bin/env bash
-# Node-service deploy for deployment.runtime: vps_node. See references/deployment.md.
-#
-# The remote restart needs exactly one privileged action. Prefer a user-level systemd unit
-# (no sudo needed at all). If a system unit is required, scope sudo to only this command,
-# e.g. in /etc/sudoers.d/__APP_USER__-deploy:
-#   __DEPLOY_USER__ ALL=(root) NOPASSWD: /usr/bin/systemctl restart __APP_NAME__.service
-# Never grant broader sudo (no wildcard service name, no full systemctl access).
+# Static-site deploy: build once, ship a versioned release, switch a symlink atomically.
+# Requires deployment.runtime: vps_static. Read references/deployment.md before adapting.
 set -euo pipefail
 
 : "${DEPLOY_HOST:?Set DEPLOY_HOST in an ignored local env file}"
 : "${DEPLOY_USER:?Set DEPLOY_USER in an ignored local env file}"
 : "${DEPLOY_SSH_KEY_PATH:?Set DEPLOY_SSH_KEY_PATH in an ignored local env file}"
 : "${DEPLOY_APP_DIR:?Set DEPLOY_APP_DIR in an ignored local env file}"
-: "${DEPLOY_SERVICE_NAME:?Set DEPLOY_SERVICE_NAME in an ignored local env file}"
 : "${DEPLOY_HEALTHCHECK_URL:?Set DEPLOY_HEALTHCHECK_URL in an ignored local env file}"
 # Where the served build SHA is read; override when the health check URL has its own path.
 DEPLOY_VERSION_URL="${DEPLOY_VERSION_URL:-${DEPLOY_HEALTHCHECK_URL%/}/version.txt}"
+DEPLOY_RELEASES_TO_KEEP="${DEPLOY_RELEASES_TO_KEEP:-5}"
 
-# Replace these commands after the architecture gate.
+# Replace these after the architecture gate. BUILD_OUTPUT_DIR is the static build's output folder.
 INSTALL_COMMAND="__INSTALL_COMMAND__"
-CHECK_COMMAND="__CHECK_COMMAND__"
 BUILD_COMMAND="__BUILD_COMMAND__"
+BUILD_OUTPUT_DIR="__BUILD_OUTPUT_DIR__"
 
-case "$INSTALL_COMMAND $CHECK_COMMAND $BUILD_COMMAND" in
+case "$INSTALL_COMMAND $BUILD_COMMAND $BUILD_OUTPUT_DIR" in
   *"__"*)
-    echo "Replace all command placeholders before using this template." >&2
+    echo "Replace all command/path placeholders before using this template." >&2
     exit 2
     ;;
 esac
@@ -61,7 +56,7 @@ if [[ -n "$(git -C "$repo_root" status --porcelain)" ]]; then
 fi
 
 # Never replace production with a branch that does not contain what production runs now.
-deployed_rev=$(ssh "${ssh_args[@]}" "$remote" "cat '$DEPLOY_APP_DIR/version.txt' 2>/dev/null || true")
+deployed_rev=$(ssh "${ssh_args[@]}" "$remote" "cat '$DEPLOY_APP_DIR/current/version.txt' 2>/dev/null || true")
 deployed_rev="${deployed_rev//[[:space:]]/}"
 case "$(release_guard_decision "$deployed_rev" "$sha" "$repo_root")" in
   ok) ;;
@@ -74,35 +69,43 @@ case "$(release_guard_decision "$deployed_rev" "$sha" "$repo_root")" in
     echo "WARNING: deploying ${sha} over non-ancestor production revision ${deployed_rev} (DEPLOY_ALLOW_NON_DESCENDANT=1)." >&2
     ;;
 esac
-release_dir=$(mktemp -d)
-trap 'rm -rf "$release_dir"' EXIT
-
-git -C "$repo_root" archive HEAD | tar -x -C "$release_dir"
-echo "$sha" > "$release_dir/version.txt"
-
 timestamp=$(date -u +%Y%m%dT%H%M%SZ)
+release_name="${timestamp}-${sha:0:12}"
 
-ssh "${ssh_args[@]}" "$remote" \
-  "mkdir -p '$DEPLOY_APP_DIR' \"$DEPLOY_APP_DIR.backups\" && tar -czf \"$DEPLOY_APP_DIR.backups/predeploy-$timestamp.tgz\" -C '$DEPLOY_APP_DIR' . 2>/dev/null || true"
+# Build locally or in CI. Never build on the server.
+( cd "$repo_root" && eval "$INSTALL_COMMAND" && eval "$BUILD_COMMAND" )
+
+build_dir="$repo_root/$BUILD_OUTPUT_DIR"
+if [[ ! -d "$build_dir" ]]; then
+  echo "Build output directory not found: $build_dir" >&2
+  exit 1
+fi
+
+# Stamp the artifact with the deployed SHA so the health check can verify it.
+echo "$sha" > "$build_dir/version.txt"
+
+release_dir="$DEPLOY_APP_DIR/releases/$release_name"
+
+ssh "${ssh_args[@]}" "$remote" "mkdir -p '$release_dir'"
 
 rsync -az --delete \
-  --exclude '.env*' \
-  --exclude 'node_modules' \
-  --exclude '.next' \
   -e "ssh -i $DEPLOY_SSH_KEY_PATH -o BatchMode=yes" \
-  "$release_dir/" "$remote:$DEPLOY_APP_DIR/"
+  "$build_dir/" "$remote:$release_dir/"
 
+# Atomic symlink swap: build the new symlink next to the old one, then rename over it.
 ssh "${ssh_args[@]}" "$remote" \
-  "cd '$DEPLOY_APP_DIR' && $INSTALL_COMMAND && $CHECK_COMMAND && $BUILD_COMMAND && sudo systemctl restart '$DEPLOY_SERVICE_NAME'"
+  "ln -sfn '$release_dir' '$DEPLOY_APP_DIR/current.new' && mv -T '$DEPLOY_APP_DIR/current.new' '$DEPLOY_APP_DIR/current'"
 
 curl --fail --silent --show-error --retry 8 --retry-delay 2 "$DEPLOY_HEALTHCHECK_URL" >/dev/null
 
-# Confirm the running service actually serves this deploy's commit, not just a 200.
-# Adapt to however the app exposes its build SHA: a /version.txt route, or a response header.
 deployed_sha=$(curl --fail --silent --show-error "$DEPLOY_VERSION_URL")
 if [[ "${deployed_sha//$'\n'/}" != "$sha" ]]; then
   echo "Health check served SHA ${deployed_sha} but expected ${sha}. Investigate before trusting this release." >&2
   exit 1
 fi
 
-echo "Deployment health check passed (verified SHA $sha). Backup: predeploy-$timestamp.tgz"
+# Prune old releases, keeping the most recent DEPLOY_RELEASES_TO_KEEP.
+ssh "${ssh_args[@]}" "$remote" \
+  "cd '$DEPLOY_APP_DIR/releases' && ls -1t | tail -n +$((DEPLOY_RELEASES_TO_KEEP + 1)) | xargs -r rm -rf --"
+
+echo "Deployed release: $release_name (verified SHA $sha)"

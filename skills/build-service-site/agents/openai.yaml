@@ -1,4 +1,4 @@
 interface:
   display_name: "Build Service Site"
-  short_description: "Guide a service site from brief to launch"
-  default_prompt: "Use $build-service-site to guide me from project discovery through copy, design, implementation, QA, and deployment."
+  short_description: "Guide a service site or product landing from brief to launch"
+  default_prompt: "Use $build-service-site to guide me from project discovery through copy, design, implementation, QA, measurement, and deployment of a service website or product landing page."

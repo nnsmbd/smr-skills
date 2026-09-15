@@ -1,0 +1,9 @@
+This deployment doc uses documentation-only sample addresses.
+
+Example nginx upstream (RFC 5737, never a real host):
+  server 203.0.113.10:443;
+  server 198.51.100.25:443;
+  server 192.0.2.5:443;
+
+These addresses are reserved for documentation and must never resolve on the
+public internet, so the privacy scanner should not flag them.

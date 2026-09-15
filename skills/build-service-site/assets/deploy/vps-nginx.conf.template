@@ -1,6 +1,42 @@
+# Reverse-proxy nginx config for deployment.runtime: vps_node.
+# Adapt every __PLACEHOLDER__. Get certificates first (e.g. certbot certonly --webroot)
+# before enabling the 443 server block. See vps-nginx-static.conf.template for the static-site path.
+
 server {
     listen 80;
+    listen [::]:80;
     server_name __APP_DOMAIN__;
+
+    # ACME HTTP-01 challenge path; keep this reachable over plain HTTP even after TLS is live.
+    location /.well-known/acme-challenge/ {
+        root __ACME_WEBROOT__;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name __APP_DOMAIN__;
+
+    ssl_certificate __TLS_CERT_PATH__;
+    ssl_certificate_key __TLS_KEY_PATH__;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    # Security headers. Adjust CSP to the project's real third-party origins
+    # (analytics provider, pixel, fonts, embeds) before shipping — this is a starting skeleton, not a final policy.
+    # Add includeSubDomains and preload to HSTS only after every subdomain serves HTTPS; preload is hard to undo.
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'" always;
 
     location / {
         proxy_pass http://127.0.0.1:__APP_PORT__;

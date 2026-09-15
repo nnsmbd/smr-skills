@@ -10,7 +10,9 @@ Record final copy exactly as approved. Keep internal notes outside production te
 - Heading:
 - Supporting copy:
 - Primary CTA:
+- Primary CTA microcopy:
 - Secondary CTA:
+- Secondary CTA microcopy:
 - Proof:
 
 ### Sections
