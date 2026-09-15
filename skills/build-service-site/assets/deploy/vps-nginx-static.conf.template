@@ -1,0 +1,71 @@
+# Static-site nginx config for deployment.runtime: vps_static.
+# Serves $DEPLOY_APP_DIR/current (the atomic release symlink). Adapt every __PLACEHOLDER__.
+# Get certificates first (e.g. certbot certonly --webroot) before enabling the 443 server block.
+#
+# Caching is chosen by a map instead of per-location add_header: in nginx, any add_header inside
+# a location discards every add_header inherited from the server block, which would silently
+# drop the security headers. Rename the map variable if several sites share one nginx instance.
+map $uri $site_cache_control {
+    ~*\.[0-9a-fA-F]{6,}\.(?:js|css|png|jpg|jpeg|gif|svg|webp|avif|woff2?)$ "public, max-age=31536000, immutable";
+    ~*\.html$ "no-cache";
+    /version.txt "no-cache";
+    default "";
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name __APP_DOMAIN__;
+
+    # ACME HTTP-01 challenge path; keep this reachable over plain HTTP even after TLS is live.
+    location /.well-known/acme-challenge/ {
+        root __ACME_WEBROOT__;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name __APP_DOMAIN__;
+
+    ssl_certificate __TLS_CERT_PATH__;
+    ssl_certificate_key __TLS_KEY_PATH__;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    root __APP_ROOT__;
+    index index.html;
+
+    # Security headers. Keep every add_header in this server block (see the map note above).
+    # Adjust CSP to the project's real third-party origins (analytics provider, pixel, fonts, embeds)
+    # before shipping — this is a starting skeleton, not a final policy.
+    # Add includeSubDomains and preload to HSTS only after every subdomain serves HTTPS; preload is hard to undo.
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'" always;
+    # Empty map values are not sent.
+    add_header Cache-Control $site_cache_control always;
+
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 512;
+
+    # Deny dotfiles (e.g. .env, .git) anywhere under the web root.
+    location ~ /\. {
+        deny all;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    error_page 404 /404.html;
+}

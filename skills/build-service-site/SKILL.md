@@ -1,6 +1,6 @@
 ---
 name: build-service-site
-description: Guide a service, expert, consultant, agency, or personal-brand website from discovery through research, conversion copy, three live design directions, architecture, implementation, responsive motion QA, GitHub workflow, and deployment. Use for a new website, an existing-site redesign, a site audit that may lead to implementation, or resuming a previously recorded website project. Works in Codex and Claude Code and adapts to the user's stack, hosting, project instructions, evidence, and approval preferences.
+description: Guide a service website (expert, consultant, agency, personal brand) or a product landing page (SaaS, AI tool, app, bot, waitlist or launch page) from discovery through research, conversion copy, three live design directions, architecture, implementation, automated responsive and SEO QA, measurement, GitHub workflow, and deployment. Use for a new website or landing page, an existing-site redesign, a site audit that may lead to implementation, or resuming a previously recorded website project. Works in Codex and Claude Code and adapts to the user's stack, hosting, project instructions, evidence, and approval preferences.
 ---
 
 # Build Service Site
@@ -15,9 +15,10 @@ Lead the user from an incomplete idea to a verified website without importing an
    - `audit`: inspect and recommend without mutating unless the user also asks to implement;
    - `resume`: continue from `.site-builder/project.yaml`.
 2. Inspect available context before asking questions: repository files, current site, screenshots, briefs, copy, assets, analytics, issues, `AGENTS.md`, and `CLAUDE.md`.
-3. Read `.site-builder/project.yaml` when it exists. Treat it as the project state, but verify stale facts against the repository and live systems when relevant.
-4. Preserve unrelated user changes. Never replace an existing implementation merely to match the starter assets.
-5. Report the inferred mode, current phase, known facts, and the next decision in a compact update.
+3. Read `.site-builder/project.yaml` when it exists. Treat it as the project state, but verify stale facts against the repository and live systems when relevant. Migrate `schema_version: 1` state as described in `references/site-profiles.md`.
+4. Determine `project.site_type` (`service` or `product`) from context; ask one question only when both fit. Read `references/site-profiles.md` for the profile differences that apply to every later phase.
+5. Preserve unrelated user changes. Never replace an existing implementation merely to match the starter assets.
+6. Report the inferred mode, site type, current phase, known facts, and the next decision in a compact update.
 
 For a new project, copy `assets/project.yaml` to `.site-builder/project.yaml` and fill only known, non-secret fields. Copy `assets/env.example` to the project's chosen env example only when deployment or integrations require it.
 
@@ -54,11 +55,12 @@ Record `workflow.phase`, `workflow.status`, `open_questions`, `assumptions`, and
 
 Do not silently cross these gates:
 
-1. `brief`: audience, problem, offer, proof, CTA, scope, and languages are approved.
+1. `brief`: site type, audience, problem, offer or access model, proof, primary action adapter, event plan, scope, and languages are approved.
 2. `copy`: page structure and production copy are approved.
-3. `design`: one of three live HTML directions is selected and its transferable principles are recorded.
+3. `design`: the design source is recorded; one of three live HTML directions is selected, or the external or existing design is analyzed; `design-tokens.css` is filled and passes the contrast check; forbidden styles and signature elements are recorded.
 4. `pre_production`: implementation scope, stack, modules, acceptance criteria, and deployment target are approved.
 5. `deploy`: checks pass and the user authorizes the specific production action.
+6. `acceptance`: after release, the owner reviews production or a production-like environment on real devices; record devices and what emulation did not verify. Deploy approval is not acceptance.
 
 An approval can be an explicit user statement or a prior approval recorded with evidence and a date. A vague positive reaction is not approval to deploy.
 
@@ -66,7 +68,7 @@ An approval can be an explicit user statement or a prior approval recorded with 
 
 ### Discovery and brief
 
-Read `references/discovery.md`. Establish the business outcome, audience, offer, proof readiness, primary CTA, content owner, page scope, languages, integrations, constraints, and success measures. For redesigns, distinguish what must remain, what may change, and what is broken.
+Read `references/discovery.md` and `references/site-profiles.md`. Establish the business outcome, audience, offer or product access model, proof readiness, primary and secondary action adapters, content owners, page scope, languages, regions, integrations, constraints, and success measures. Read `references/measurement.md` and draft the event plan before the brief gate. For redesigns, distinguish what must remain, what may change, and what is broken.
 
 ### Research
 
@@ -74,23 +76,31 @@ Read `references/competitor-research.md` and `references/reference-sources.md`. 
 
 ### Conversion copy
 
-Read `references/conversion-copy.md`. Build the message hierarchy, claim ledger, page narrative, objections, proof plan, CTA architecture, forms, and final copy. Do not invent metrics, testimonials, clients, guarantees, legal details, or urgency.
+Read `references/conversion-copy.md`. Build the message hierarchy, claim ledger, page narrative, objections, proof plan, CTA architecture, forms, legal-page needs, and final copy. Do not invent metrics, testimonials, clients, guarantees, legal details, product capabilities, or urgency.
+
+If a compatible `writer` skill is installed and fits the language and voice, prepare `assets/copy-brief.md` as a packet and delegate wording to it; this skill still owns the claim ledger, section map, and copy gate. Otherwise write the copy here. Never make `writer` a hard dependency or claim it was used when it was not.
 
 ### Design
 
-Read `references/design-directions.md`. Create three genuinely different live HTML directions using approved copy and realistic content volume. Keep them framework-independent unless the user asks otherwise. Record why the selected direction fits the audience and offer before production transfer.
+Read `references/design-directions.md`. Record `design.source` first:
+
+- `directions`: create three genuinely different live HTML directions using approved copy and realistic content volume;
+- `external`: analyze the supplied design or system, extract tokens, and list conflicts with approved copy instead of inventing alternatives;
+- `existing`: inventory the current tokens and components and change them by targeted diffs.
+
+Fill `assets/design-tokens.css` as the single source of truth and run `scripts/qa/check-contrast.mjs` before the gate. Specify each signature interactive element with `assets/design-handoff/signature-element.md`. After selection, refine in numbered iterations with checkpoints and roll back rejected iterations instead of patching over them; see `assets/design-handoff/README.md`.
 
 ### Architecture
 
-Read `references/stack-selection.md`. Select the stack from requirements instead of habit. Record the decision, rejected alternatives, package manager, rendering model, data ownership, integrations, and deployment implications.
+Read `references/stack-selection.md`. Select the stack from requirements instead of habit. Default to a static build for landing pages; choose a server runtime only when action adapters, auth, payments, or server-side tracking require it. Record the decision, rejected alternatives, package manager, rendering model, `deployment.runtime`, data ownership, integrations, and deployment implications.
 
 ### Build
 
-Implement only the approved direction and modules. Prefer semantic HTML, accessible components, content-driven height, reusable tokens, and one responsive structure. Keep optional modules optional. Preserve the project's established conventions unless they conflict with an approved requirement.
+Implement only the approved direction, modules, and event plan. Prefer semantic HTML, accessible components, content-driven height, values from the approved tokens, and one responsive structure. Do not normalize intentional asymmetry from the approved design; log every deviation. Keep optional modules optional. Preserve the project's established conventions unless they conflict with an approved requirement.
 
 ### Responsive motion and QA
 
-Read `references/responsive-motion.md`. Validate width, height, aspect ratio, content growth, keyboard, touch, reduced motion, intermediate animation states, no-JS/recovery behavior where relevant, SEO, performance, forms, build, and production-like runtime.
+Read `references/responsive-motion.md`. Validate width, height, aspect ratio, content growth, keyboard, touch, reduced motion, intermediate animation states, no-JS/recovery behavior where relevant, SEO, performance, accessibility, forms, analytics events, build, and production-like runtime. Run the optional automated checks from `scripts/qa/` inside the website project, record results in the `qa` state block, and keep the manual checks they cannot replace.
 
 ### GitHub workflow
 
@@ -98,7 +108,7 @@ Read `references/github-workflow.md` when GitHub tracking or publication is requ
 
 ### Deployment and handoff
 
-Read `references/deployment.md`. Ask which deployment model applies unless project instructions already decide it. Do not default strangers to a particular host. Run the relevant preflight, backup, build, health check, and rollback procedure. Finish with verified URLs, open risks, operations notes, and project-state updates.
+Read `references/deployment.md`. Ask which deployment model applies unless project instructions already decide it. Do not default strangers to a particular host. When VPS is chosen, prefer the static release-and-symlink path unless a server runtime was approved. Run the relevant preflight, backup, build, health check, and rollback procedure. Finish with verified URLs, verified analytics events, the experiments backlog from `references/measurement.md`, open risks, operations notes, and project-state updates.
 
 ## Privacy boundary
 
@@ -122,15 +132,21 @@ Use capability descriptions rather than hard-coded tool aliases. In Codex and Cl
 
 ## Bundled resources
 
-- `assets/project.yaml`: public project-state template.
+- `references/site-profiles.md`: service versus product differences, action adapters, and state migration.
+- `references/measurement.md`: event plan, attribution, consent, event verification, and experiments backlog.
+- `assets/project.yaml`: public project-state template (schema version 2).
+- `assets/copy-brief.md`: copy brief packet for delegating wording to a compatible writer skill.
+- `assets/design-tokens.css`: design-system token template with contrast pairs, breakpoints, and motion tokens.
 - `assets/env.example`: names-only environment template.
 - `assets/gitignore.snippet`: ignore rules for local env and private project state.
-- `assets/design-handoff/`: neutral handoff documents for external design exploration.
+- `assets/design-handoff/`: handoff structure, design decision, refinement log, and signature-element spec.
 - `assets/github-templates/`: optional issue and PR templates.
-- `assets/deploy/`: neutral VPS templates; use only when the user chooses VPS.
+- `assets/deploy/`: neutral VPS templates (static releases by default, hardened Node runtime optional); use only when the user chooses VPS.
 - `scripts/install.sh`: install the same skill for Codex, Claude Code, or both.
 - `scripts/validate-config.sh`: validate state structure and reject obvious private values.
 - `scripts/scan-private-data.sh`: scan intended publication scope for common secrets and user-supplied forbidden terms.
+- `scripts/qa/`: optional screenshot (width and height matrix, hidden content under reduced motion), contrast, SEO, Lighthouse/axe, and analytics-event checks to run inside the website project.
+- `scripts/check-skill-consistency.sh`, `tests/`, `evals/`: maintenance checks for this skill itself; not copied into website projects.
 - `references/reference-sources.md`: recommended research and workflow tools with direct links and usage boundaries.
 
 Do not copy every asset into every project. Use only the resources selected by the approved scope.

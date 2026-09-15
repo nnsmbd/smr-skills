@@ -26,8 +26,9 @@ For substantial work, use one website launch epic with phase tasks:
 3. Visual directions.
 4. Architecture and implementation.
 5. Responsive and motion QA.
-6. Content and proof readiness.
-7. Deployment and handoff.
+6. Measurement plan and event verification.
+7. Content and proof readiness.
+8. Deployment and handoff (verify analytics per `references/measurement.md`, link the experiments backlog path, and reference the QA report path).
 
 Each task must contain:
 

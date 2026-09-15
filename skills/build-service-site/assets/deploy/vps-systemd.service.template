@@ -1,3 +1,14 @@
+# Hardened service unit for deployment.runtime: vps_node.
+#
+# Create the unprivileged app user first, e.g.:
+#   sudo useradd --system --no-create-home --shell /usr/sbin/nologin __APP_USER__
+# Then chown __APP_DIR__ (and only the paths the app actually writes to) to that user.
+#
+# Prefer a user-level unit (systemctl --user, under linger) when the host allows it —
+# it needs no elevated privileges at all. If a system unit is required, restrict sudo to
+# exactly this restart, nothing broader, e.g. in /etc/sudoers.d/__APP_USER__-deploy:
+#   __DEPLOY_USER__ ALL=(root) NOPASSWD: /usr/bin/systemctl restart __APP_NAME__.service
+
 [Unit]
 Description=__APP_NAME__ web service
 After=network.target
@@ -11,8 +22,26 @@ EnvironmentFile=__ENV_FILE__
 ExecStart=__START_COMMAND__
 Restart=on-failure
 RestartSec=5
+
+# Hardening. Loosen only a specific line if the app has a proven need, and note why.
 NoNewPrivileges=true
 PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+# Only the paths the app must write at runtime (logs, cache, uploads) — everything else stays read-only.
+ReadWritePaths=__APP_WRITABLE_PATHS__
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+# MemoryDenyWriteExecute is omitted on purpose: JIT runtimes such as Node.js fail with it enabled.
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 
 [Install]
 WantedBy=multi-user.target

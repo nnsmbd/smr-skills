@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Static-site rollback: point `current` at the previous kept release and re-verify.
+# Test this script successfully at least once before the first production deploy.
+set -euo pipefail
+
+: "${DEPLOY_HOST:?Set DEPLOY_HOST in an ignored local env file}"
+: "${DEPLOY_USER:?Set DEPLOY_USER in an ignored local env file}"
+: "${DEPLOY_SSH_KEY_PATH:?Set DEPLOY_SSH_KEY_PATH in an ignored local env file}"
+: "${DEPLOY_APP_DIR:?Set DEPLOY_APP_DIR in an ignored local env file}"
+: "${DEPLOY_HEALTHCHECK_URL:?Set DEPLOY_HEALTHCHECK_URL in an ignored local env file}"
+# Where the served build SHA is read; override when the health check URL has its own path.
+DEPLOY_VERSION_URL="${DEPLOY_VERSION_URL:-${DEPLOY_HEALTHCHECK_URL%/}/version.txt}"
+
+ssh_args=(-i "$DEPLOY_SSH_KEY_PATH" -o BatchMode=yes)
+remote="$DEPLOY_USER@$DEPLOY_HOST"
+
+# Optional first argument: exact release directory name to roll back to.
+# Without it, roll back to the newest release older than the one `current` points to,
+# so repeated rollbacks keep stepping back instead of reselecting the same release.
+target_release="${1:-}"
+
+if [[ -z "$target_release" ]]; then
+  current_release=$(ssh "${ssh_args[@]}" "$remote" \
+    "basename \"\$(readlink '$DEPLOY_APP_DIR/current')\"")
+  target_release=$(ssh "${ssh_args[@]}" "$remote" "cd '$DEPLOY_APP_DIR/releases' && ls -1t" \
+    | awk -v current="$current_release" 'found { print; exit } $0 == current { found = 1 }')
+fi
+
+if [[ -z "$target_release" ]]; then
+  echo "No prior release found to roll back to." >&2
+  exit 1
+fi
+
+release_dir="$DEPLOY_APP_DIR/releases/$target_release"
+
+ssh "${ssh_args[@]}" "$remote" "test -d '$release_dir'" || {
+  echo "Release directory not found on server: $release_dir" >&2
+  exit 1
+}
+
+expected_sha=$(ssh "${ssh_args[@]}" "$remote" "cat '$release_dir/version.txt'")
+
+ssh "${ssh_args[@]}" "$remote" \
+  "ln -sfn '$release_dir' '$DEPLOY_APP_DIR/current.new' && mv -T '$DEPLOY_APP_DIR/current.new' '$DEPLOY_APP_DIR/current'"
+
+curl --fail --silent --show-error --retry 8 --retry-delay 2 "$DEPLOY_HEALTHCHECK_URL" >/dev/null
+
+deployed_sha=$(curl --fail --silent --show-error "$DEPLOY_VERSION_URL")
+if [[ "${deployed_sha//$'\n'/}" != "${expected_sha//$'\n'/}" ]]; then
+  echo "Health check served SHA ${deployed_sha} but rollback target was ${expected_sha}." >&2
+  exit 1
+fi
+
+echo "Rolled back to release: $target_release (verified SHA ${expected_sha})"

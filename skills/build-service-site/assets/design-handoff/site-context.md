@@ -2,15 +2,20 @@
 
 ## Business
 
+- Site type: service / product
 - Product or service:
+- Access model (product only): waitlist / trial / freemium / paid / demo_call / open
 - Audience:
 - Buying situation:
 - Problem:
 - Offer:
 - Difference:
-- Primary CTA:
+- Primary CTA: label, adapter type, what happens after the click
+- Secondary CTA: label, adapter type, what happens after the click
 - Proof available:
 - Proof unavailable:
+- Design source: directions / external / existing (per scope, if mixed)
+- Brand assets: logo, colors, fonts, imagery rules — location (`design.brand_assets_path`)
 
 ## Scope
 

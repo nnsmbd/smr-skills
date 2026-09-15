@@ -37,11 +37,31 @@
 - Capture: structure, breakpoint behavior, content density, and the reusable principle behind a section.
 - Boundary: verify template and asset licensing, avoid copying an entire template, and do not assume a Framer implementation determines the production stack.
 
+### Landingfolio
+
+- URL: https://www.landingfolio.com/
+- Use for: a curated gallery of landing page designs organized by industry (SaaS, Product, Business) and by page type, including a dedicated pricing-page category — full-page rhythm, section order, and pricing-page layout patterns for product landings.
+- Capture: the exact page or section, category, reviewed date, and the specific pattern that may transfer.
+- Boundary: a featured design is a layout example, not proof it converts for the current audience; verify licensing before reusing any component or template.
+- Checked: 2026-09.
+
+### Page Flows
+
+- URL: https://pageflows.com/
+- Use for: real, annotated screen recordings of SaaS product flows — onboarding, signup, login, checkout, and upgrade/pricing sequences — across web, iOS, and Android.
+- Capture: the exact flow, product, reviewed date, and the specific interaction that may transfer.
+- Boundary: same as Mobbin — a shipped flow is evidence of real-world use, not proof it fits the current product. Full access is a paid subscription (a short paid trial is offered); do not share captured screens beyond what licensing allows.
+- Checked: 2026-09.
+
 ### Manager skill
 
-- URL: https://github.com/serejaris/personal-corp-skills/blob/main/skills/manager/SKILL.md
-- Use for: optional GitHub issue lookup and synchronization, parent hierarchy, Project placement, work records, and commit links when the skill is installed and configured.
-- Boundary: `build-service-site` must still work without manager. Use the fallback in `github-workflow.md` when manager is absent.
+- Use for: a compatible manager skill, if installed — optional GitHub issue lookup and synchronization, parent hierarchy, Project placement, work records, and commit links.
+- Boundary: `build-service-site` must still work without manager. Use the fallback in `github-workflow.md` when manager is absent or incompatible.
+
+### Writer skill
+
+- Use for: a compatible writer skill, if installed — optional delegation of copy drafting once the copy brief packet is ready (see `assets/copy-brief.md` and `conversion-copy.md`).
+- Boundary: `build-service-site` keeps ownership of the claim ledger and the copy gate regardless of who drafts the words. `build-service-site` must still work without writer; write copy directly following `conversion-copy.md` when writer is absent or incompatible.
 
 ## How to use the catalog
 

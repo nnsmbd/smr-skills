@@ -1,13 +1,21 @@
 # Design decision
 
+- Design source: directions / external / existing (per scope, if mixed)
 - Selected direction:
 - Approval date and evidence:
 - Audience and offer fit:
+- Brand inputs: logo, color, font (license, script/subset coverage, weights), imagery rules
 - Grid and composition:
 - Typography:
 - Color and surfaces:
 - Image treatment:
+- Image processing parameters: crop, rotation, aspect ratio, masks — as numbers
+- Product treatment (product only): real UI / stylized UI / video loop / interactive demo / abstract visualization
+- Tokens path: `design.tokens_path`
+- Forbidden styles: `design.forbidden_styles`
 - Motion principles:
+- Motion budget: perpetual effects per viewport, hover/cursor-effect gating, route/section scoping
+- Signature elements: `design.signature_elements` (one `signature-element.md` per element)
 - Reduced-motion behavior:
 - Responsive behavior:
 - Required assets:

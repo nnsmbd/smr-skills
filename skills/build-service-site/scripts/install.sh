@@ -89,7 +89,7 @@ install_one() {
 
   if [[ ! -f "$destination/SKILL.md" ]]; then
     echo "Installation failed for $platform" >&2
-    exit 1
+    return 1
   fi
 
   echo "Installed $platform skill at $destination"
@@ -98,15 +98,32 @@ install_one() {
 codex_home=${CODEX_HOME:-"$HOME/.codex"}
 claude_home=${CLAUDE_HOME:-"$HOME/.claude"}
 
+failed=()
+attempted=()
+
 case "$target" in
   codex)
-    install_one codex "$codex_home"
+    attempted+=(codex)
+    install_one codex "$codex_home" || failed+=(codex)
     ;;
   claude)
-    install_one claude "$claude_home"
+    attempted+=(claude)
+    install_one claude "$claude_home" || failed+=(claude)
     ;;
   both)
-    install_one codex "$codex_home"
-    install_one claude "$claude_home"
+    attempted+=(codex claude)
+    install_one codex "$codex_home" || failed+=(codex)
+    install_one claude "$claude_home" || failed+=(claude)
     ;;
 esac
+
+if [[ "$dry_run" == true ]]; then
+  exit 0
+fi
+
+if ((${#failed[@]})); then
+  echo "Install summary: ${#failed[@]}/${#attempted[@]} target(s) failed: ${failed[*]}" >&2
+  exit 1
+fi
+
+echo "Install summary: all requested target(s) installed successfully: ${attempted[*]}"
