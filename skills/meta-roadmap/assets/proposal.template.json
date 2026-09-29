@@ -1,0 +1,30 @@
+{
+  "summary": "Что изменилось с прошлого обновления — одной строкой",
+  "items": [
+    {
+      "id": "example-status",
+      "kind": "task",
+      "op": "update",
+      "targetId": "<task id from board.json>",
+      "label": "<Человеческое название>: работа началась",
+      "reason": "Код появился в ветке …, тестов и выкладки ещё нет",
+      "confidence": "confirmed",
+      "level": "implemented",
+      "source": "github",
+      "evidence": ["commit <sha> (<date>)"],
+      "patch": [{ "field": "status", "to": "in_progress" }]
+    },
+    {
+      "id": "example-question",
+      "kind": "task",
+      "op": "check",
+      "targetId": "<task id>",
+      "label": "Неизвестно, снят ли блок …",
+      "reason": "После <date> записей нет",
+      "confidence": "needs_verification",
+      "level": "",
+      "source": "github",
+      "evidence": ["последняя запись: issue #… <date>"]
+    }
+  ]
+}

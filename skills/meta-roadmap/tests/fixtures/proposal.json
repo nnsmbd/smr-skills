@@ -1,0 +1,13 @@
+{
+  "summary": "Тестовое обновление",
+  "items": [
+    { "id": "p-inprogress", "kind": "task", "op": "update", "targetId": "t1", "label": "Откат: работа началась", "confidence": "confirmed", "level": "implemented", "source": "github", "evidence": ["branch x: deploy/restore-sqlite-snapshot.sh"], "patch": [{ "field": "status", "to": "in_progress" }] },
+    { "id": "p-done-weak", "kind": "task", "op": "update", "targetId": "t1", "label": "Откат: готово?", "confidence": "confirmed", "level": "tested", "source": "github", "evidence": ["tests passed"], "patch": [{ "field": "summary", "to": "готово" }, { "field": "status", "to": "done" }] },
+    { "id": "p-manual", "kind": "task", "op": "update", "targetId": "t2", "label": "Вход: выложено на samir", "confidence": "confirmed", "level": "deployed", "source": "github", "evidence": ["#48 deploy record"], "patch": [{ "field": "status", "to": "done" }] },
+    { "id": "p-noevidence", "kind": "decision", "op": "update", "targetId": "d1", "label": "Решение уточнено", "confidence": "confirmed", "level": "", "source": "github", "evidence": [], "patch": [{ "field": "statement", "to": "новая формулировка" }] },
+    { "id": "p-noop", "kind": "task", "op": "update", "targetId": "t2", "label": "Без изменений", "confidence": "confirmed", "level": "tested", "source": "github", "evidence": ["x"], "patch": [{ "field": "category", "to": "access" }] },
+    { "id": "p-create", "kind": "task", "op": "create", "label": "Новая задача: удаление данных", "confidence": "confirmed", "level": "planned", "source": "audit", "evidence": ["audit M6"], "entity": { "id": "t3", "milestoneId": "m1", "title": "Удалять данные по запросу", "status": "backlog", "category": "security" } },
+    { "id": "p-check", "kind": "task", "op": "check", "targetId": "t2", "label": "Статус входа на samir неизвестен", "confidence": "needs_verification", "level": "", "source": "github", "evidence": ["нет записей после 26.09"] },
+    { "id": "p-missing", "kind": "task", "op": "update", "targetId": "nope", "label": "Несуществующая", "confidence": "confirmed", "level": "planned", "source": "github", "evidence": ["x"], "patch": [{ "field": "status", "to": "next" }] }
+  ]
+}

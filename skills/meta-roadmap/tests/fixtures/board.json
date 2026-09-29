@@ -1,0 +1,21 @@
+{
+  "schema": 3,
+  "meta": { "title": "Test", "tagline": "", "position": "", "criterion": "", "asOf": "2026-09-29", "sources": "", "currentMilestoneId": "m1", "lastSync": { "at": "2026-09-29", "summary": "baseline" }, "pendingSync": null },
+  "milestones": [
+    { "id": "m1", "phase": "Сейчас", "title": "Подготовить бот", "technicalTitle": "", "status": "current", "goal": "", "summary": "", "why": "", "doneWhen": "", "blockers": "", "technicalDetails": "", "progress": null, "date": "", "links": [],
+      "provenance": { "source": "board", "evidence": [], "lastVerified": "2026-09-29", "confidence": "confirmed", "level": "planned" }, "history": [], "manualFields": [], "manualNote": "" }
+  ],
+  "tasks": [
+    { "id": "t1", "milestoneId": "m1", "title": "Безопасно откатывать обновления", "technicalTitle": "H4", "status": "next", "category": "reliability", "summary": "", "why": "", "doneWhen": "", "nextAction": "", "blockers": "", "technicalDetails": "", "checklist": [], "links": [], "owner": "", "date": "", "manualPriority": "",
+      "provenance": { "source": "audit", "evidence": ["audit H4"], "lastVerified": "2026-09-29", "confidence": "confirmed", "level": "planned" }, "history": [], "manualFields": [], "manualNote": "" },
+    { "id": "t2", "milestoneId": "m1", "title": "Новый вход через Meta", "technicalTitle": "#48", "status": "review", "category": "access", "summary": "", "why": "", "doneWhen": "", "nextAction": "", "blockers": "", "technicalDetails": "", "checklist": [], "links": [], "owner": "", "date": "", "manualPriority": "high",
+      "provenance": { "source": "github", "evidence": ["#48"], "lastVerified": "2026-09-29", "confidence": "confirmed", "level": "tested" }, "history": [], "manualFields": ["status", "title"], "manualNote": "Моё" }
+  ],
+  "releases": [],
+  "decisions": [
+    { "id": "d1", "title": "Сначала пилот", "technicalTitle": "", "status": "accepted", "statement": "", "why": "", "technicalDetails": "", "milestoneIds": [], "links": [], "date": "",
+      "provenance": { "source": "board", "evidence": [], "lastVerified": "", "confidence": "confirmed", "level": "" }, "history": [], "manualFields": [], "manualNote": "" }
+  ],
+  "facts": [],
+  "playbooks": []
+}
