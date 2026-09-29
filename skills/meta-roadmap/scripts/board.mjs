@@ -16,6 +16,11 @@ import { join } from 'node:path';
 import { applyPending, classify, planProposal, renderReport } from './sync-core.mjs';
 
 const URL_BASE = (process.env.META_BOARD_URL || 'https://meta-roadmap-board.vercel.app').replace(/\/$/, '');
+// The key travels with every request: only https (or a local dev server) is allowed.
+if (!/^https:\/\//.test(URL_BASE) && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(URL_BASE)) {
+  console.error(`meta-roadmap: refusing to send the board key to ${URL_BASE} (https only).`);
+  process.exit(1);
+}
 
 function readKey() {
   if (process.env.META_BOARD_KEY) return process.env.META_BOARD_KEY.trim();
@@ -26,7 +31,7 @@ function readKey() {
   } catch {
     fail(`No board key: set META_BOARD_KEY or META_BOARD_KEY_FILE (tried ${file}).`);
   }
-  const m = text.match(/^BOARD_ACCESS_KEY\s*=\s*"?([^"\n]+)"?/m);
+  const m = text.match(/^BOARD_ACCESS_KEY\s*=\s*["']?([^"'\s#]+)["']?/m);
   if (!m) fail(`BOARD_ACCESS_KEY not found in ${file}.`);
   return m[1].trim();
 }
@@ -98,7 +103,8 @@ if (cmd === 'pull') {
   const local = arg('--board');
   const board = local ? (loadJson(local).board ?? loadJson(local)) : (await fetchBoard()).board;
   const { proposal, dropped } = planProposal(board, loadJson(file));
-  writeFileSync(file.replace(/\.json$/, '.planned.json'), JSON.stringify(proposal, null, 2));
+  const plannedPath = /\.json$/.test(file) ? file.replace(/\.json$/, '.planned.json') : `${file}.planned.json`;
+  writeFileSync(plannedPath, JSON.stringify(proposal, null, 2));
   console.log(renderReport(board, proposal, { dropped }));
   console.log(`\n(dry-run: nothing written to the board; planned proposal saved next to ${file})`);
 } else if (cmd === 'propose') {
@@ -118,7 +124,10 @@ if (cmd === 'pull') {
 } else if (cmd === 'apply') {
   const { board, rev } = await fetchBoard();
   if (!board.meta.pendingSync) fail('no pending proposal on the board.');
+  if (process.argv.includes('--ids') && !arg('--ids')) fail('--ids needs a comma-separated list of item ids.');
   const ids = arg('--ids')?.split(',').map((s) => s.trim()).filter(Boolean) ?? null;
+  const unknown = ids?.filter((id) => !board.meta.pendingSync.items.some((i) => i.id === id)) ?? [];
+  if (unknown.length) fail(`unknown item ids: ${unknown.join(', ')}`);
   const acceptManual = process.argv.includes('--accept-manual');
   if (acceptManual && !ids) fail('--accept-manual needs an explicit --ids list: manual conflicts are resolved one by one.');
   const { applied, skipped } = applyPending(board, { ids, acceptManual });

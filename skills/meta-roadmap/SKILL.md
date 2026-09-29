@@ -19,7 +19,7 @@ Keep the Meta Agent roadmap board (https://meta-roadmap-board.vercel.app, code i
 ## Pipeline
 
 1. **Read the board.** `node scripts/board.mjs pull --out <tmp>/board.json`. It prints `since` (last sync date), the current milestone, pending proposal count, and which entities were edited by hand. If a proposal is already pending, show its report (`report`) and ask whether to review/apply it first.
-2. **Fix the window.** `since` = `meta.lastSync.at`; also note entities whose `provenance.lastVerified` is older (they need re-checking). Research from `since` (inclusive) to now.
+2. **Fix the window.** `since` = `meta.lastSync.at` (the research date of the last applied proposal, not the day it was applied); also note entities whose `provenance.lastVerified` is older (they need re-checking). Research from `since` (inclusive) to now.
 3. **Research in parallel with Sonnet subagents** (use the briefs in `references/research-briefs.md`; pass them the board's open items and `since`). Split so they don't overlap: (a) GitHub delta — issues, comments, PRs, branches, commits, tags/releases in both repos; (b) evidence levels for every open board item; (c) off-GitHub work — local Codex session folders, audit/reports, production records. Subagents return facts with sources; they do not decide board changes.
 4. **Cross-check** anything that would change a status, add a blocker, or mark done: open the cited issue comment/commit yourself (small `gh` calls). One subagent's claim is not enough for a critical change.
 5. **Diff reality vs board.** For each fact decide: completed? new work? status change? new blocker / blocker gone? no longer relevant? new decision? Write a proposal JSON (`assets/proposal.template.json`, schema in `references/board-model.md`). Plain-language `label` (what the owner reads), `reason`, `evidence`, `level`, `confidence`, `source`. New entities get both layers: human `title/summary/why/doneWhen` and `technicalTitle/technicalDetails`.
@@ -52,7 +52,7 @@ Issue *bodies* in this project go stale (headers are updated less often than com
 
 ## What stays manual
 
-Owner-only: `manualNote`, `manualPriority`, milestone order, the current-milestone choice, any field listed in `manualFields` (the board adds a field there whenever the owner edits it by hand, including drag-and-drop status changes), playbooks. Conflicts on these appear in the report as ⚠ and are applied only when the owner accepts them one by one.
+Owner-only: `manualNote`, `manualPriority`, milestone order, the current-milestone choice (any milestone status patch that sets `current` or moves the current milestone away is always a ⚠ owner decision; accepting it updates `meta.currentMilestoneId`), hand-checked provenance (`'provenance'` in `manualFields` blocks every update and check of that entity until accepted), any field listed in `manualFields` (the board adds a field there whenever the owner edits it by hand, including drag-and-drop status changes), playbooks. Conflicts on these appear in the report as ⚠ and are applied only when the owner accepts them one by one.
 
 ## Writing for the owner
 

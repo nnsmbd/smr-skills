@@ -26,7 +26,7 @@ Every milestone / task / release / decision / fact has:
 | `provenance` `{source, evidence[], lastVerified, confidence, level}` | written on every applied change | `confidence`: confirmed / needs_verification / conflict |
 | `history[]` `{at, by: agent|user, text}` | append-only log | never proposed |
 | `manualFields[]` | set by the board UI when the owner edits a field by hand | never proposed; a patch touching a listed field becomes a conflict |
-| `manualNote`, `manualPriority` (tasks) | **owner only** | never proposed |
+| `manualNote`, `manualPriority` (tasks) | **owner only** | never proposed, also not inside `create.entity` (rejected) |
 
 Milestone order and `meta.currentMilestoneId` are owner decisions: propose them as items with a clear reason; never bundle them into other changes.
 

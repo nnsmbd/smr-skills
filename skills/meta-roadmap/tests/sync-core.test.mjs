@@ -122,3 +122,56 @@ test('report shows confirmed, open questions and manual conflicts separately', (
   assert.match(text, /1 конфликт с ручными правками/);
   assert.match(text, /\[Применить подтверждённое: 2\]/);
 });
+
+// ───────────── regressions from the 30.09 review
+
+test('hand-checked provenance blocks updates and checks until the owner accepts', () => {
+  const board = load('board.json');
+  const t1 = board.tasks.find((t) => t.id === 't1');
+  t1.manualFields = ['provenance'];
+  t1.provenance.level = 'verified';
+  const { proposal } = planProposal(board, { items: [load('proposal.json').items[0], { ...load('proposal.json').items[6], id: 'chk', targetId: 't1' }] });
+  assert.deepEqual(proposal.items[0].manualConflicts, ['provenance']);
+  assert.equal(itemState(board, proposal.items[0]), 'manual');
+  assert.equal(itemState(board, proposal.items[1]), 'manual');
+  board.meta.pendingSync = proposal;
+  applyPending(board, { today: '2026-09-30' });
+  assert.equal(t1.provenance.level, 'verified', 'provenance untouched by apply confirmed');
+  applyPending(board, { ids: [proposal.items[0].id], acceptManual: true, today: '2026-09-30' });
+  assert.equal(t1.provenance.level, 'implemented');
+  assert.ok(!t1.manualFields.includes('provenance'));
+});
+
+test('milestone status changes around the current milestone are owner decisions and keep currentMilestoneId in sync', () => {
+  const board = load('board.json');
+  board.milestones.push({ ...structuredClone(board.milestones[0]), id: 'm2', status: 'next', title: 'Следующий' });
+  const items = [
+    { id: 'm1-done', kind: 'milestone', op: 'update', targetId: 'm1', label: 'm1 готов', confidence: 'confirmed', level: 'done', source: 'github', evidence: ['x'], patch: [{ field: 'status', to: 'done' }] },
+    { id: 'm2-cur', kind: 'milestone', op: 'update', targetId: 'm2', label: 'm2 сейчас', confidence: 'confirmed', level: 'planned', source: 'github', evidence: ['x'], patch: [{ field: 'status', to: 'current' }] },
+  ];
+  const { proposal } = planProposal(board, { items });
+  for (const i of proposal.items) {
+    assert.ok(i.manualConflicts.includes('currentMilestone'));
+    assert.equal(itemState(board, i), 'manual');
+  }
+  board.meta.pendingSync = proposal;
+  assert.equal(applyPending(board, { today: '2026-09-30' }).applied.length, 0, 'never applied in bulk');
+  applyPending(board, { ids: ['m2-cur'], acceptManual: true, today: '2026-09-30' });
+  assert.equal(board.meta.currentMilestoneId, 'm2');
+  assert.equal(board.milestones.find((m) => m.id === 'm1').status, 'next');
+});
+
+test('create cannot carry owner-only fields and is held to the evidence rules', () => {
+  assert.throws(() => validateProposal({ items: [{ id: 'c', kind: 'task', op: 'create', label: 'x', confidence: 'confirmed', level: 'planned', evidence: ['e'], entity: { id: 'n', title: 'n', manualPriority: 'high' } }] }), /manual-only/);
+  const board = load('board.json');
+  const { proposal } = planProposal(board, { items: [{ id: 'c', kind: 'task', op: 'create', label: 'x', confidence: 'confirmed', level: 'implemented', evidence: ['e'], entity: { id: 'n', title: 'n', status: 'done' } }] });
+  assert.equal(proposal.items[0].confidence, 'needs_verification');
+});
+
+test('lastSync cursor is the research date of the proposal, not the apply date', () => {
+  const board = load('board.json');
+  const { proposal } = planProposal(board, { items: [load('proposal.json').items[0]] }, '2026-10-01T09:00:00Z');
+  board.meta.pendingSync = proposal;
+  applyPending(board, { today: '2026-10-05' });
+  assert.equal(board.meta.lastSync.at, '2026-10-01');
+});

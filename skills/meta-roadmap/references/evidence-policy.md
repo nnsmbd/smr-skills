@@ -22,6 +22,8 @@ commit found ≠ production verified · tests green ≠ user flow accepted · de
 | milestone → `done` | `done` | demoted |
 | release → `current` / `shipped` | `deployed` | demoted |
 | any `confirmed` item without evidence | — | demoted |
+| `create` with a status (e.g. new task already `done`) | same minimums as above | demoted |
+| milestone status to/from `current` | owner decision | always a ⚠ conflict |
 
 Demoted items are still shown to the owner; they can accept them explicitly (`apply --ids`).
 

@@ -49,6 +49,7 @@ export function validateProposal(p) {
     if (i.op === 'check' && !i.targetId) errors.push(`${at}: check needs targetId`);
     if (i.op === 'create' && (!i.entity || typeof i.entity.id !== 'string' || typeof i.entity.title !== 'string')) errors.push(`${at}: create needs entity with id and title`);
     for (const f of i.patch ?? []) if (MANUAL_ONLY.has(f.field)) errors.push(`${at}: field ${f.field} is manual-only and can never be proposed`);
+    for (const k of Object.keys(i.entity ?? {})) if (k !== 'id' && (MANUAL_ONLY.has(k) || k === 'provenance')) errors.push(`${at}: entity field ${k} is manual-only / managed and can never be proposed`);
   }
   if (errors.length) throw new ProposalError(errors.join('\n'));
   return true;
@@ -84,6 +85,8 @@ export function planProposal(board, raw, now = new Date().toISOString()) {
         continue;
       }
       if (!item.evidence.length && item.confidence === 'confirmed') demote(item, 'нет доказательств');
+      const min = STATUS_MIN_LEVEL[item.kind]?.[item.entity.status];
+      if (min && !levelAtLeast(item.level, min) && item.confidence === 'confirmed') demote(item, `новая запись со статусом «${item.entity.status}» требует уровня «${LEVEL_LABEL[min]}»`);
       items.push(item);
       continue;
     }
@@ -95,6 +98,7 @@ export function planProposal(board, raw, now = new Date().toISOString()) {
     }
     if (item.op === 'check') {
       if (item.confidence === 'confirmed') item.confidence = 'needs_verification';
+      if ((target.manualFields ?? []).includes('provenance')) item.manualConflicts = ['provenance'];
       items.push(item);
       continue;
     }
@@ -115,6 +119,8 @@ export function planProposal(board, raw, now = new Date().toISOString()) {
       }
     }
     const manual = item.patch.map((p) => p.field).filter((f) => (target.manualFields ?? []).includes(f));
+    if ((target.manualFields ?? []).includes('provenance')) manual.push('provenance');
+    if (touchesCurrent(board, item, target.id)) manual.push('currentMilestone');
     if (manual.length) item.manualConflicts = manual;
     items.push(item);
   }
@@ -129,18 +135,27 @@ function demote(item, why) {
   item.reason = item.reason ? `${item.reason} · ${why}` : why;
 }
 
-/** State of an item against a board — identical rules to the board UI. */
+/** Choosing or leaving the current milestone is always the owner's decision. */
+export function touchesCurrent(board, item, targetId) {
+  return item.kind === 'milestone' && (item.patch ?? []).some((p) => p.field === 'status' && (p.to === 'current' || board.meta?.currentMilestoneId === targetId));
+}
+
+/** State of an item against a board — identical rules to the board UI (src/sync.ts). */
 export function itemState(board, item) {
   const rows = list(board, item.kind);
   if (item.op === 'create') return rows.some((x) => x.id === item.entity?.id) ? 'applied' : 'ready';
   const target = rows.find((x) => x.id === item.targetId);
   if (!target) return 'missing';
-  if (item.op === 'check') return target.provenance?.confidence === 'needs_verification' && (target.history ?? []).some((h) => h.text === item.label) ? 'applied' : 'ready';
+  const provLocked = (target.manualFields ?? []).includes('provenance');
+  if (item.op === 'check') {
+    if (target.provenance?.confidence === 'needs_verification' && (target.history ?? []).some((h) => h.text === item.label)) return 'applied';
+    return provLocked ? 'manual' : 'ready';
+  }
   const patch = item.patch ?? [];
   if (patch.some((p) => MANUAL_ONLY.has(p.field))) return 'invalid';
   if (patch.every((p) => same(target[p.field], p.to))) return 'applied';
   if (patch.some((p) => !same(target[p.field], p.from) && !same(target[p.field], p.to))) return 'stale';
-  if (patch.some((p) => (target.manualFields ?? []).includes(p.field))) return 'manual';
+  if (provLocked || patch.some((p) => (target.manualFields ?? []).includes(p.field)) || touchesCurrent(board, item, target.id)) return 'manual';
   return 'ready';
 }
 
@@ -166,18 +181,27 @@ export function applyItem(board, item, { acceptManual = false, today = new Date(
   const provenance = { source: item.source, evidence: item.evidence, lastVerified: today, confidence: item.confidence, level: item.level ?? '' };
   const entry = { at: today, by: 'agent', text: item.label };
   if (item.op === 'create') {
-    rows.push({ ...item.entity, provenance, history: [entry], manualFields: [], manualNote: '' });
+    const entity = Object.fromEntries(Object.entries(item.entity).filter(([k]) => k === 'id' || (!MANUAL_ONLY.has(k) && k !== 'provenance')));
+    rows.push({ ...entity, provenance, history: [entry], manualFields: [], manualNote: '' });
     return 'applied';
   }
   const target = rows.find((x) => x.id === item.targetId);
   if (item.op === 'check') {
+    if (acceptManual) target.manualFields = (target.manualFields ?? []).filter((f) => f !== 'provenance');
     target.provenance = { ...(target.provenance ?? {}), confidence: 'needs_verification', lastVerified: today };
     target.history = [...(target.history ?? []), entry];
     return 'applied';
   }
   for (const p of item.patch) {
     target[p.field] = p.to;
-    if (acceptManual) target.manualFields = (target.manualFields ?? []).filter((f) => f !== p.field);
+    if (acceptManual) target.manualFields = (target.manualFields ?? []).filter((f) => f !== p.field && f !== 'provenance');
+    if (item.kind === 'milestone' && p.field === 'status') {
+      // Keep meta.currentMilestoneId the single source of truth (the board normalizes status from it).
+      if (p.to === 'current') {
+        for (const m of board.milestones) if (m.id !== target.id && m.status === 'current') m.status = 'next';
+        board.meta.currentMilestoneId = target.id;
+      } else if (board.meta.currentMilestoneId === target.id) board.meta.currentMilestoneId = '';
+    }
   }
   target.provenance = provenance;
   target.history = [...(target.history ?? []), entry];
@@ -206,7 +230,8 @@ export function applyPending(board, { ids = null, acceptManual = false, today } 
   if (rest.length) board.meta.pendingSync = { ...p, items: rest };
   else {
     board.meta.pendingSync = null;
-    board.meta.lastSync = { at: today ?? new Date().toISOString().slice(0, 10), summary: p.summary || `применено: ${applied.length}` };
+    // Research cursor = when the proposal was researched (not when it was applied).
+    board.meta.lastSync = { at: (p.createdAt || today || new Date().toISOString()).slice(0, 10), summary: p.summary || `применено: ${applied.length}` };
   }
   return { applied, skipped };
 }
