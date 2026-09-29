@@ -62,5 +62,5 @@ The owner is a product person and marketer, not an engineer. Labels and new titl
 
 - `scripts/board.mjs` — CLI (`pull`, `plan`, `propose`, `apply`, `report`). Config: `META_BOARD_URL`, `META_BOARD_KEY` or `META_BOARD_KEY_FILE` (default `~/meta-roadmap-board/.env.local`).
 - `scripts/sync-core.mjs` — planning/apply rules (pure, unit-tested). The board UI mirrors the apply rules in `~/meta-roadmap-board/src/sync.ts`; change both together.
-- `tests/run-tests.sh` — fixtures for: evidence demotion, manual conflicts, explicit acceptance, stale patches, idempotency, create, check items, report.
+- `tests/run-tests.sh` — fixtures for: evidence demotion, manual conflicts, explicit acceptance, stale patches, idempotency, create, check items, report; plus the UI parity regression (`~/meta-roadmap-board/scripts/check-sync-parity.mjs`, override with `META_BOARD_REPO`).
 - `references/board-model.md`, `references/evidence-policy.md`, `references/research-briefs.md`, `references/report-format.md`, `assets/proposal.template.json`.
